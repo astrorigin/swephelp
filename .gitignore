@@ -1,0 +1,11 @@
+# swephelp .gitignore
+
+/build*
+
+*~
+*.a
+*.bak
+*.o
+*.orig
+*.so
+
