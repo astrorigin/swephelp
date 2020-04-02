@@ -1,23 +1,46 @@
 # swephelp Makefile
 
 CC = cc
-CFLAGS += -g -O9 -Wall -Werror=declaration-after-statement -std=gnu99
-# path to swisseph
-INCS += -I. -I../libswe
+CFLAGS = -g -O3 -Wall -Werror=declaration-after-statement -std=gnu99
+DESTDIR = /usr/local
+# path to swephexp.h
+SWEDIR = $(HOME)/pro/swisseph/git
 
-SWHOBJ = swhdatetime.o swhformat.o swhgeo.o swhmisc.o swhraman.o swhsearch.o swhutil.o
+SWHINC = swephelp.h \
+	 swhdatetime.h \
+	 swhdef.h \
+	 swhformat.h \
+	 swhgeo.h \
+	 swhmisc.h \
+	 swhraman.h \
+	 swhsearch.h \
+	 swhutil.h \
+	 swhwin.h
+
+SWHOBJ = swhdatetime.o \
+	 swhformat.o \
+	 swhgeo.o \
+	 swhmisc.o \
+	 swhraman.o \
+	 swhsearch.o \
+	 swhutil.o
+
+.DEFAULT_GOAL := all
 
 .c.o:
-	$(CC) -c $(CFLAGS) $(INCS) $<
+	$(CC) -c $(CFLAGS) -fPIC -I. -I$(SWEDIR) $<
+
+libswephelp.a: $(SWHOBJ)
+	ar rcs $@ $(SWHOBJ)
+
+libswephelp.so: $(SWHOBJ)
+	$(CC) -shared -o $@ $(SWHOBJ)
+
+.PHONY: all clean
 
 all: libswephelp.a
 
-libswephelp.a: $(SWHOBJ)
-	ar rcs libswephelp.a $(SWHOBJ)
-
-.PHONY: clean
-
 clean:
-	rm -f *.o libswephelp.a
+	rm -f *.o libswephelp.*
 
-# vi: fenc=utf-8 ff=unix et ai sw=4 ts=4 sts=4
+# vi: sw=4 ts=4 noet

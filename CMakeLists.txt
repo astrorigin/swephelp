@@ -35,7 +35,7 @@ include_directories( BEFORE .
 if ( MSVC )
     add_definitions( -D_CRT_SECURE_NO_WARNINGS )
 else()
-    add_definitions( -g -O9 -Wall )
+    add_definitions( -g -O3 -Wall -Werror=declaration-after-statement -std=gnu99 )
     if ( NOT MINGW )
         add_definitions( -fPIC )
     endif()
@@ -46,4 +46,4 @@ add_library( swephelp STATIC ${SOURCES} )
 install( TARGETS swephelp ARCHIVE DESTINATION lib )
 install( FILES ${HEADERS} DESTINATION include/swephelp )
 
-# vi: fenc=utf-8 ff=unix et ai sw=4 ts=3 sts=4
+# vi: sw=4 ts=4 et
