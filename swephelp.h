@@ -1,7 +1,7 @@
 /*
     Swephelp
 
-    Copyright 2007-2017 Stanislas Marquis <stan@astrorigin.com>
+    Copyright 2007-2020 Stanislas Marquis <stan@astrorigin.com>
 
     Swephelp is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -17,19 +17,8 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** @file swephelp.h
-** @brief swephelp export header file
-**
-** Main swephelp header, imports all swephelp functions and defines.
-*/
-
 #ifndef SWEPHELP_H
 #define SWEPHELP_H
-
-/* pollute namespace with fancy aliases */
-#ifndef SWH_USE_ALIASES
-#define SWH_USE_ALIASES     1
-#endif
 
 /* use a global mutex to protect swisseph data */
 #ifndef SWH_USE_THREADS
@@ -50,4 +39,4 @@
 #include "swhutil.h"
 
 #endif /* SWEPHELP_H */
-/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 sts=4 : */
+/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

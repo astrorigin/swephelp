@@ -1,7 +1,7 @@
 /*
     Swephelp
 
-    Copyright 2007-2017 Stanislas Marquis <stan@astrorigin.com>
+    Copyright 2007-2020 Stanislas Marquis <stan@astrorigin.com>
 
     Swephelp is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -18,10 +18,10 @@
 */
 
 /** @file swhdef.h
-** @brief swephelp defines header file
-**
-** Contains various usefull defines.
-*/
+ * @brief swephelp defines header file
+ *
+ * Contains various usefull defines.
+ */
 
 #ifndef SWHDEF_H
 #define SWHDEF_H
@@ -141,4 +141,4 @@ extern "C"
 #endif
 
 #endif /* swhdef.h */
-/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 sts=4 : */
+/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

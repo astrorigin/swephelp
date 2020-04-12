@@ -1,7 +1,7 @@
 /*
     Swephelp
 
-    Copyright 2007-2017 Stanislas Marquis <stan@astrorigin.com>
+    Copyright 2007-2020 Stanislas Marquis <stan@astrorigin.com>
 
     Swephelp is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -15,10 +15,6 @@
 
     You should have received a copy of the GNU General Public License
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/** @file swhmisc.c
-** @brief Misc experimental stuff
 */
 
 #include <swephexp.h>
@@ -102,4 +98,4 @@ int swh_saturn_4_stars( const double jd, const int flag, double* ret, char* err 
     return 0;
 }
 
-/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 sts=4 : */
+/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

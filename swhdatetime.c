@@ -1,7 +1,7 @@
 /*
     Swephelp
 
-    Copyright 2007-2017 Stanislas Marquis <stan@astrorigin.com>
+    Copyright 2007-2020 Stanislas Marquis <stan@astrorigin.com>
 
     Swephelp is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -17,10 +17,6 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** @file swhdatetime.c
-** @brief swephelp date and time functions
-*/
-
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -33,9 +29,6 @@
 #include "swhdatetime.h"
 #include "swhwin.h"
 
-/** @brief Get current Julian day number, Gregorian calendar
-** @return Julian day number
-*/
 double swh_jdnow(void)
 {
     time_t t = time(NULL);
@@ -51,18 +44,6 @@ double swh_jdnow(void)
 #endif
 }
 
-/** @brief Reverse Julian day to date and time
-**
-** Similar to swe_revjul, but returns time with three integers instead
-** of one double. (Also tries to avoid some floating points rounding errors.)
-**
-** @see swh_julday()
-**
-** @param jd Julian day
-** @param flag Calendar type (SE_GREG_CAL|SE_JUL_CAL)
-** @param dt Results, declared as int[6] (year, month, day, hour, min, sec)
-** @return 0
-*/
 int swh_revjul(double jd, int flag, int *dt)
 {
     double t;
@@ -87,15 +68,6 @@ int swh_revjul(double jd, int flag, int *dt)
     return 0;
 }
 
-/** @brief Get integers from datetime representation
-**
-** As a habit we keep dates and times in a personal, yet
-** unambiguous format: "{yyyy}/{mm}/{dd} {hh}:{mm}:{ss}".
-**
-** @param coord datetime string
-** @param ret Returned integers declared as int[6]
-** @return 0 on success, or -1 if string is invalid
-*/
 int swh_dt2i(const char *dt, int *ret)
 {
     char *ptr, buf[22];
@@ -165,4 +137,4 @@ int swh_dt2i(const char *dt, int *ret)
     return 0;
 }
 
-/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 sts=4 : */
+/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

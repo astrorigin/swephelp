@@ -1,7 +1,7 @@
 /*
     Swephelp
 
-    Copyright 2007-2017 Stanislas Marquis <stan@astrorigin.com>
+    Copyright 2007-2020 Stanislas Marquis <stan@astrorigin.com>
 
     Swephelp is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -17,25 +17,11 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** @file swhraman.c
-*/
-
 #include <stdlib.h>
 
 #include "swhdef.h"
 #include "swhraman.h"
 
-/** @brief Get Raman houses cusps
-**
-** Get Raman houses cusps (bhavamadhya or arambhasandhi), given the ascendant
-** and midheaven cusps.
-**
-** @param asc Udaya lagna
-** @param mc Madhya lagna
-** @param ret Returned sputhas, declared as double[12]
-** @param sandhi Return bhavamadhya (0) or arambhasandhi (1), boolean
-** @return 0
-*/
 int swh_raman_houses(double asc, double mc, double *ret, int sandhi)
 {
     double arc;
@@ -65,13 +51,6 @@ int swh_raman_houses(double asc, double mc, double *ret, int sandhi)
     return 0;
 }
 
-/** @brief Get lord of sign
-**
-** Get planet number (lord of sign) for given sign number.
-**
-** @param sign Sign number [0:11]
-** @return Planet number (SE_*), or -1 if sign is invalid
-*/
 int swh_lord(int sign)
 {
     switch (sign)
@@ -92,14 +71,6 @@ int swh_lord(int sign)
     }
 }
 
-/** @brief Get Nakshatra and Pada from longitude
-**
-** Get Nakshatra number [0:26] and Pada [0:3] from longitude.
-**
-** @param longitude Longitude on ecliptic
-** @param ret Returned Nakshatra and Pada, declared as int[2]
-** @return 0
-*/
 int swh_long2nakshatra(double longitude, int *ret)
 {
     longitude = swe_degnorm(longitude);
@@ -108,14 +79,6 @@ int swh_long2nakshatra(double longitude, int *ret)
     return 0;
 }
 
-/** @brief Get Nakshatra name
-**
-** Get Nakshatra name from Nakshatra number.
-**
-** @param nakshatra Nakshatra number [0:26]
-** @param str Buffer for returned string, declared as char[15]
-** @return 0 on success, or -1 if nakshatra is invalid
-*/
 int swh_get_nakshatra_name(int nakshatra, char *str)
 {
     switch (nakshatra)
@@ -151,15 +114,6 @@ int swh_get_nakshatra_name(int nakshatra, char *str)
     }
 }
 
-/** @brief Get Rasi difference
-**
-** Get number of rasi between two rasis, from 0 to 11.
-** That is used for drishti.
-**
-** @param r1 Rasi number [0:11]
-** @param r2 Rasi number [0:11]
-** @return Rasi difference [0:11]
-*/
 int swh_rasi_dif(int r1, int r2)
 {
     r1 = swh_rasinorm(r1);
@@ -169,29 +123,12 @@ int swh_rasi_dif(int r1, int r2)
     else return r1 - r2;
 }
 
-/** @brief Get Rasi difference
-**
-** Get number of rasi between two rasis, from -5 to 6.
-**
-** @param r1 Rasi number [0:11]
-** @param r2 Rasi number [0:11]
-** @return Rasi difference [-5:6]
-*/
 int swh_rasi_dif2(int r1, int r2)
 {
     const int i = swh_rasi_dif(r1, r2);
     return (i > 6) ? (-6 + (i - 6)) : (i);
 }
 
-/** @brief Get Naisargika relation between planets
-**
-** Get naisargika relation between planets.
-**
-** @param gr1 Planet number
-** @param gr2 Planet number
-** @param ret Relation returned Satru (-1) Sama (0) or Mitra (1)
-** @return 0 on success, or -1 if a planet is invalid
-*/
 int swh_naisargika_relation(int gr1, int gr2, int *ret)
 {
     switch (gr1)
@@ -251,15 +188,6 @@ int swh_naisargika_relation(int gr1, int gr2, int *ret)
     satru: *ret = -1; return 0;
 }
 
-/** @brief Get residential strength of a planet
-**
-** Get the residential strength of a planet, given the bhavamadhya longitudes.
-**
-** @param graha Graha longitude
-** @param bm 12 Bhavamadhya longitudes
-** @param ret Residential strength returned
-** @return 0 on success, or -1 on error
-*/
 int swh_residential_strength(double graha, const double *bm, double *ret)
 {
     int i;
@@ -298,16 +226,6 @@ int swh_residential_strength(double graha, const double *bm, double *ret)
     return -1;
 }
 
-/* *** Sthanabala ***/
-
-/** @brief Get Ochchabala
-**
-** Get the exaltation strength of a planet.
-**
-** @param graha Planet number (SE_*)
-** @param sputha Planet longitude on ecliptic [0:360[
-** @return Ochchabala in shashtiamsa, or -1 if planet is invalid
-*/
 double swh_ochchabala(int graha, double sputha)
 {
     int x;
@@ -325,4 +243,4 @@ double swh_ochchabala(int graha, double sputha)
     return fabs(swe_difdeg2n(sputha, x)) / 3.0;
 }
 
-/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 sts=4 : */
+/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

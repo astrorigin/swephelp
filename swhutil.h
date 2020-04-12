@@ -1,7 +1,7 @@
 /*
     Swephelp
 
-    Copyright 2007-2017 Stanislas Marquis <stan@astrorigin.com>
+    Copyright 2007-2020 Stanislas Marquis <stan@astrorigin.com>
 
     Swephelp is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -26,10 +26,6 @@
 
 #ifndef SWH_USE_THREADS
 #define SWH_USE_THREADS     1
-#endif
-
-#ifndef SWH_USE_ALIASES
-#define SWH_USE_ALIASES     1
 #endif
 
 #if SWH_USE_THREADS
@@ -61,18 +57,10 @@ void swh_globals_init(swh_Globals *glob);
 
 int swh_set_globals(swh_Globals *glob);
 
-#if SWH_USE_ALIASES
-
-#define SWH_LOCK()      swh_lock()
-#define SWH_UNLOCK()    swh_unlock()
-#define SWH_TRYLOCK()   swh_trylock()
-
-#endif /* SWH_USE_ALIASES */
-
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
 #endif /* SWH_USE_THREADS */
 #endif /* SWHUTIL_H */
-/* vi: set fenc=utf-8 ff=unix sw=4 ts=4 sts=4 : */
+/* vi: set fenc=utf-8 ff=unix sw=4 ts=4 : */

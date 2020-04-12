@@ -1,7 +1,7 @@
 /*
     Swephelp
 
-    Copyright 2007-2017 Stanislas Marquis <stan@astrorigin.com>
+    Copyright 2007-2020 Stanislas Marquis <stan@astrorigin.com>
 
     Swephelp is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -17,22 +17,10 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** @file swhformat.c
-** @brief swephelp formating functions
-*/
-
 #include <swephexp.h>
 
 #include "swhformat.h"
 
-/** @brief Get degrees, sign number, minutes, seconds, from longitude position
-**
-** Split a longitude position to a more usual format.
-**
-** @param pos Longitude position [0;360[
-** @param ret Results, declared as int[4] (deg, sign, min, sec)
-** @return 0
-*/
 int swh_degsplit(double pos, int *ret)
 {
     pos = swe_degnorm(pos);
@@ -46,11 +34,6 @@ int swh_degsplit(double pos, int *ret)
     return 0;
 }
 
-/** @brief Get the 3-letters string representing a sign number
-** @param sign Sign number [0;11]
-** @param str Returned string, declared as char[4]
-** @return 0, or -1 if sign was invalid
-*/
 int swh_signtostr(int sign, char *str)
 {
     switch (sign)
@@ -71,11 +54,6 @@ int swh_signtostr(int sign, char *str)
     }
 }
 
-/** @brief Get house system name
-** @param hsys House system char [PKRCBOAEHVXGU]
-** @param str Returned string, declared as char[25]
-** @return 0, or -1 if house system is unknown
-*/
 int swh_house_system_name(char hsys, char *str)
 {
     switch (hsys)
@@ -101,10 +79,6 @@ int swh_house_system_name(char hsys, char *str)
     }
 }
 
-/** @brief Get house system unique id
-** @param hsys House system char identifier (see swisseph docs)
-** @return A numerical identifier, or -1 if house system invalid
-*/
 int swh_house_system_id(char hsys)
 {
     switch (hsys)
@@ -130,10 +104,6 @@ int swh_house_system_id(char hsys)
     }
 }
 
-/** @brief Get house system char
-** @param hsys House system int identifier
-** @return Identifier, or -1 if house system invalid
-*/
 char swh_house_system_char(int hsys)
 {
     switch (hsys)
@@ -159,13 +129,6 @@ char swh_house_system_char(int hsys)
     }
 }
 
-/** @brief Get sidereal mode flag
-**
-** Return the swisseph sidereal mode flag from the given sidereal mode index.
-**
-** @param sidmode
-** @return Flag, or -1 if invalid mode
-*/
 int swh_sidereal_mode_flag(int sidmode)
 {
     if (sidmode == 0) return 256; /* no western/tropical flag in swisseph */
@@ -174,10 +137,6 @@ int swh_sidereal_mode_flag(int sidmode)
     else return -1;
 }
 
-/** @brief Get sidereal mode unique identifier
-** @param sidmode Sidereal mode identifier
-** @return index [0:22]
-*/
 int swh_sidereal_mode_id(int sidmode)
 {
     if (sidmode == 256) return 0; /* western/tropical */
@@ -186,4 +145,4 @@ int swh_sidereal_mode_id(int sidmode)
     else return -1;
 }
 
-/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 sts=4 : */
+/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

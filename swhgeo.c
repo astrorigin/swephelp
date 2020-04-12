@@ -1,7 +1,7 @@
 /*
     Swephelp
 
-    Copyright 2007-2017 Stanislas Marquis <stan@astrorigin.com>
+    Copyright 2007-2020 Stanislas Marquis <stan@astrorigin.com>
 
     Swephelp is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -17,9 +17,6 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** @file swhgeo.c
-** @brief Geographical utilities (latitude, longitude, altitude)
-*/
 
 #include <assert.h>
 #include <math.h>
@@ -30,17 +27,6 @@
 #include "swhgeo.h"
 #include "swhwin.h"
 
-/** @brief Get double from latitude or longitude string
-**
-** Get a double from a longitude or latitude expressed as a string like
-** "{degrees}:{direction}:{minutes}:{seconds}".
-** Directions are given as a single char, 'N' for north, 'S' for south,
-** 'E' for east, 'W' for west.
-**
-** @param coord Latitude or longitude string
-** @param ret Returned double
-** @return 0 on success, or -1 if string is invalid
-*/
 int swh_geoc2d(const char *coord, double *ret)
 {
 #ifndef WIN32
@@ -115,11 +101,6 @@ int swh_geoc2d(const char *coord, double *ret)
     return 0;
 }
 
-/** @brief Extract degrees, minutes and seconds from a geographical coordinate
-** @param coord Latitude or Longitude
-** @param ret Returned degrees, minutes, seconds, declared as int[3]
-** @return 0
-*/
 int swh_geod2i(double coord, int *ret)
 {
     coord = fabs(coord);
@@ -132,18 +113,6 @@ int swh_geod2i(double coord, int *ret)
     return 0;
 }
 
-/** @brief Get string from geographical coordinates
-**
-** Get formated string for a geographical coordinate, like
-** "{degrees}:{N|S|E|W}:{minutes}:{seconds}".
-**
-** @remarks Use the defined macros swh_geolat2c swh_geolon2c instead.
-**
-** @param coord longitude as double
-** @param ret Buffer for returned string, declared as char[12]
-** @param maxdeg 90 for latitude, 180 for longitude
-** @return 0 on success, or -1 if coord is invalid
-*/
 int swh_geod2c(double coord, int maxdeg, char *ret)
 {
     int deg, dir, min, sec;
@@ -170,4 +139,4 @@ int swh_geod2c(double coord, int maxdeg, char *ret)
     return 0;
 }
 
-/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 sts=4 : */
+/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

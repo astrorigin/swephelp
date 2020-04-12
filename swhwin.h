@@ -1,7 +1,7 @@
 /*
     Swephelp
 
-    Copyright 2007-2017 Stanislas Marquis <stan@astrorigin.com>
+    Copyright 2007-2020 Stanislas Marquis <stan@astrorigin.com>
 
     Swephelp is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
@@ -15,10 +15,6 @@
 
     You should have received a copy of the GNU General Public License
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/** @file swhwin.h
-** @brief swephelp windowz specific header
 */
 
 #ifndef SWHWIN_H
@@ -38,4 +34,4 @@
 
 #endif /* WIN32 */
 #endif /* SWHWIN_H */
-/* vi: set fenc=utf8 ff=unix et sw=4 ts=4 sts=4 : */
+/* vi: set fenc=utf8 ff=unix et sw=4 ts=4 : */
