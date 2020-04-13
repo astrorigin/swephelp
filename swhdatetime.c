@@ -70,70 +70,45 @@ int swh_revjul(double jd, int flag, int *dt)
 
 int swh_dt2i(const char *dt, int *ret)
 {
-    char *ptr, buf[22];
+    char *ptr, buf[32];
 #ifndef WIN32
     char *saveptr;
+#define strtok(buf, chr) strtok_r(buf, chr, &saveptr)
 #endif
-    strcpy(buf, dt);
-#ifndef WIN32
-    ptr = strtok_r(buf, "/", &saveptr);
-#else
+    memset(buf, 0, sizeof(char) * 32);
+    strncpy(buf, dt, 31);
     ptr = strtok(buf, "/");
-#endif
     if (ptr == NULL || strspn(ptr, "-0123456789") != strlen(ptr))
         return -1;
-    else
-        ret[0] = atoi(ptr); /* year */
-#ifndef WIN32
-    ptr = strtok_r(NULL, "/", &saveptr);
-#else
+    ret[0] = atoi(ptr); /* year */
     ptr = strtok(NULL, "/");
-#endif
     if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
         return -1;
-    else
-        ret[1] = atoi(ptr); /* month */
+    ret[1] = atoi(ptr); /* month */
     assert(ret[1] > 0 && ret[1] < 13);
-#ifndef WIN32
-    ptr = strtok_r(NULL, " ", &saveptr);
-#else
     ptr = strtok(NULL, " ");
-#endif
     if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
         return -1;
-    else
-        ret[2] = atoi(ptr); /* mday */
+    ret[2] = atoi(ptr); /* mday */
     assert(ret[2] > 0 && ret[2] < 32);
-#ifndef WIN32
-    ptr = strtok_r(NULL, ":", &saveptr);
-#else
     ptr = strtok(NULL, ":");
-#endif
     if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
         return -1;
-    else
-        ret[3] = atoi(ptr); /* hour */
+    ret[3] = atoi(ptr); /* hour */
     assert(ret[3] > -1 && ret[3] < 24);
-#ifndef WIN32
-    ptr = strtok_r(NULL, ":", &saveptr);
-#else
     ptr = strtok(NULL, ":");
-#endif
     if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
         return -1;
-    else
-        ret[4] = atoi(ptr); /* minutes */
+    ret[4] = atoi(ptr); /* minutes */
     assert(ret[4] > -1 && ret[4] < 60);
-#ifndef WIN32
-    ptr = strtok_r(NULL, ":", &saveptr);
-#else
     ptr = strtok(NULL, ":");
-#endif
     if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
         return -1;
-    else
-        ret[5] = atoi(ptr); /* seconds */
+    ret[5] = atoi(ptr); /* seconds */
     assert(ret[5] > -1 && ret[5] < 60);
+#ifndef WIN32
+#undef strtok
+#endif
     return 0;
 }
 
