@@ -56,7 +56,7 @@ double swh_jdnow(void);
 /** @brief Reverse Julian day to date and time
  *
  * Similar to swe_revjul, but returns time with three integers instead
- * of one double. (Also tries to avoid some floating points rounding errors.)
+ * of one double (fractions of seconds may get lost.)
  *
  * @see swh_julday()
  *

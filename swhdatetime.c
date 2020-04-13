@@ -54,17 +54,8 @@ int swh_revjul(double jd, int flag, int *dt)
     dt[4] = (int) floor(t * 60);
     t -= dt[4]/60.0;
     dt[5] = (int) lround(t * 3600);
-    if (dt[5] == 60) /* rounding error */
-    {
-        dt[5] = 0;
-        dt[4] += 1;
-        if (dt[4] == 60)
-        {
-            dt[4] = 0;
-            dt[3] += 1;
-            /* wont go further? */
-        }
-    }
+    if (dt[5] == 60)
+        dt[5] = 59;
     return 0;
 }
 
