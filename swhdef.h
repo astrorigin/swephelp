@@ -17,12 +17,6 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** @file swhdef.h
- * @brief swephelp defines header file
- *
- * Contains various usefull defines.
- */
-
 #ifndef SWHDEF_H
 #define SWHDEF_H
 
@@ -54,6 +48,7 @@ extern "C"
 #define SWH_SESQUISQUARE    135
 #define SWH_BIQUINTILE      144
 #define SWH_QUINCUNX        150
+#define SWH_INCONJUNCT      150 /* syn. */
 #define SWH_TRISEPTILE      ((360/7.0)*3)
 #define SWH_QUATRONOVILE    160
 #define SWH_QUINUNDECILE    ((360/11.0)*5)
