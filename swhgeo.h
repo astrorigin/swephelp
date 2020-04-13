@@ -17,10 +17,6 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** @file swhgeo.h
- * @brief Geographical utilities (latitude, longitude, altitude)
- */
-
 #ifndef SWHGEO_H
 #define SWHGEO_H
 

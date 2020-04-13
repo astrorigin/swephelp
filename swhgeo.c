@@ -30,74 +30,59 @@
 int swh_geoc2d(const char *coord, double *ret)
 {
 #ifndef WIN32
-    char *saveptr; /* for strtok_r */
+    char *saveptr;
+#define strtok(buf, chr) strtok_r(buf, chr, &saveptr)
 #endif
     int deg, dir, min, sec;
 #ifndef NDEBUG
     int degmax; /* used in asserts only */
 #endif
     char *ptr, buf[12];
-    strcpy(buf, coord);
-#ifndef WIN32
-    ptr = strtok_r(buf, ":", &saveptr);
-#else
+    memset(buf, 0, sizeof(char) * 12);
+    strncpy(buf, coord, 11);
     ptr = strtok(buf, ":");
-#endif
     if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
         return -1;
-    else
-        deg = atoi(ptr);
+    deg = atoi(ptr);
     assert(deg >= 0);
-#ifndef WIN32
-    ptr = strtok_r(NULL, ":", &saveptr);
-#else
     ptr = strtok(NULL, ":");
-#endif
     if (ptr == NULL)
         return -1;
-    else
-    {
-        if (strcmp(ptr, "N") == 0 || strcmp(ptr, "E") == 0)
-        {
+    switch (*ptr) {
+    case 'N':
+    case 'E':
 #ifndef NDEBUG
-            degmax = 90;
+        degmax = 90;
 #endif
-            dir = 1;
-        }
-        else if (strcmp(ptr, "S") == 0 || strcmp(ptr, "W") == 0)
-        {
+        dir = 1;
+        break;
+    case 'S':
+    case 'W':
 #ifndef NDEBUG
-            degmax = 180;
+        degmax = 180;
 #endif
-            dir = 0;
-        }
-        else
-            return -1;
+        dir = 0;
+        break;
+    default:
+        return -1;
     }
     assert(deg <= degmax);
-#ifndef WIN32
-    ptr = strtok_r(NULL, ":", &saveptr);
-#else
     ptr = strtok(NULL, ":");
-#endif
     if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
         return -1;
-    else
-        min = atoi(ptr);
+    min = atoi(ptr);
     assert(deg == degmax ? min == 0 : min >= 0 && min <= 59);
-#ifndef WIN32
-    ptr = strtok_r(NULL, ":", &saveptr);
-#else
     ptr = strtok(NULL, ":");
-#endif
     if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
         return -1;
-    else
-        sec = atoi(ptr);
+    sec = atoi(ptr);
     assert(deg == degmax ? sec == 0 : sec >= 0 && sec <= 59);
     *ret = (double) (dir ?
         (deg + ((1.0/60) * min) + ((1.0/3600) * sec)) :
         -(deg + ((1.0/60) * min) + ((1.0/3600) * sec)));
+#ifndef WIN32
+#undef strtok
+#endif
     return 0;
 }
 
