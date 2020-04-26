@@ -38,20 +38,21 @@ int swh_signtostr(int sign, char *str)
 {
     switch (sign)
     {
-    case 0: strcpy(str, "Ari"); return 0;
-    case 1: strcpy(str, "Tau"); return 0;
-    case 2: strcpy(str, "Gem"); return 0;
-    case 3: strcpy(str, "Can"); return 0;
-    case 4: strcpy(str, "Leo"); return 0;
-    case 5: strcpy(str, "Vir"); return 0;
-    case 6: strcpy(str, "Lib"); return 0;
-    case 7: strcpy(str, "Sco"); return 0;
-    case 8: strcpy(str, "Sag"); return 0;
-    case 9: strcpy(str, "Cap"); return 0;
-    case 10: strcpy(str, "Aqu"); return 0;
-    case 11: strcpy(str, "Pis"); return 0;
+    case 0: strcpy(str, "Aries");
+    case 1: strcpy(str, "Taurus");
+    case 2: strcpy(str, "Gemini");
+    case 3: strcpy(str, "Cancer");
+    case 4: strcpy(str, "Leo");
+    case 5: strcpy(str, "Virgo");
+    case 6: strcpy(str, "Libra");
+    case 7: strcpy(str, "Scorpio");
+    case 8: strcpy(str, "Sagittarius");
+    case 9: strcpy(str, "Capricorn");
+    case 10: strcpy(str, "Aquarius");
+    case 11: strcpy(str, "Pisces");
     default: return -1;
     }
+    return 0;
 }
 
 int swh_house_system_name(char hsys, char *str)

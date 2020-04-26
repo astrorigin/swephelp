@@ -39,9 +39,9 @@ extern "C"
  */
 int swh_degsplit(double pos, int *ret);
 
-/** @brief Get the 3-letters string representing a sign number
+/** @brief Get the string representing a sign number
  * @param sign Sign number [0;11]
- * @param str Returned string, declared as char[4]
+ * @param str Returned string, declared as char[12]
  * @return 0, or -1 if sign was invalid
  */
 int swh_signtostr(int sign, char *str);
