@@ -38,18 +38,18 @@ int swh_signtostr(int sign, char *str)
 {
     switch (sign)
     {
-    case 0: strcpy(str, "Aries");
-    case 1: strcpy(str, "Taurus");
-    case 2: strcpy(str, "Gemini");
-    case 3: strcpy(str, "Cancer");
-    case 4: strcpy(str, "Leo");
-    case 5: strcpy(str, "Virgo");
-    case 6: strcpy(str, "Libra");
-    case 7: strcpy(str, "Scorpio");
-    case 8: strcpy(str, "Sagittarius");
-    case 9: strcpy(str, "Capricorn");
-    case 10: strcpy(str, "Aquarius");
-    case 11: strcpy(str, "Pisces");
+    case 0: strcpy(str, "Aries"); break;
+    case 1: strcpy(str, "Taurus"); break;
+    case 2: strcpy(str, "Gemini"); break;
+    case 3: strcpy(str, "Cancer"); break;
+    case 4: strcpy(str, "Leo"); break;
+    case 5: strcpy(str, "Virgo"); break;
+    case 6: strcpy(str, "Libra"); break;
+    case 7: strcpy(str, "Scorpio"); break;
+    case 8: strcpy(str, "Sagittarius"); break;
+    case 9: strcpy(str, "Capricorn"); break;
+    case 10: strcpy(str, "Aquarius"); break;
+    case 11: strcpy(str, "Pisces"); break;
     default: return -1;
     }
     return 0;
