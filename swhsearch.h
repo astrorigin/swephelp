@@ -51,8 +51,15 @@ extern "C"
  * @param err Buffer for error, declared as char[256]
  * @return 0 on success, 1 if time limit reached, -1 on error
  */
-int swh_next_retro(int planet, double jdstart, double step, int backw,
-    double dayspan, int flag, double *jdret, double *posret, char *err);
+int swh_next_retro(
+    int planet,
+    double jdstart,
+    int backw,
+    double stop,
+    int flags,
+    double* jdret,
+    double* posret,
+    char* err);
 
 /** @brief Find next exact aspect to a fixed point
  *
@@ -78,9 +85,17 @@ int swh_next_retro(int planet, double jdstart, double step, int backw,
  * @param err Buffer for errors, declared as char[256]
  * @return 0 on success, 1 if time limit reached, -1 on error
  */
-int swh_next_aspect(int planet, double aspect, double fixedpt, double jdstart,
-    double step, int backw, double dayspan, int flag, double *jdret,
-    double *posret, char *err);
+int swh_next_aspect(
+    int planet,
+    double aspect,
+    double fixedpt,
+    double jdstart,
+    int backw,
+    double stop,
+    int flags,
+    double* jdret,
+    double* posret,
+    char* err);
 
 /** @brief Find next exact aspect to a fixed point
  *
@@ -92,9 +107,17 @@ int swh_next_aspect(int planet, double aspect, double fixedpt, double jdstart,
  * and return the nearest from jdstart. It may then be faster to use
  * swh_next_aspect several times, especially when scanning long periods of time.
  */
-int swh_next_aspect2(int planet, double aspect, double fixedpt, double jdstart,
-    double step, int backw, double dayspan, int flag, double *jdret,
-    double *posret, char *err);
+int swh_next_aspect2(
+    int planet,
+    double aspect,
+    double fixedpt,
+    double jdstart,
+    int backw,
+    double stop,
+    int flags,
+    double* jdret,
+    double* posret,
+    char *err);
 
 /** @brief Find next aspect between two moving objects
  *
@@ -124,9 +147,19 @@ int swh_next_aspect2(int planet, double aspect, double fixedpt, double jdstart,
  * @param err Buffer for errors, declared as char[256]
  * @return 0 on success, 1 if time limit reached, -1 on error
  */
-int swh_next_aspect_with(int planet, double aspect, int other, char *star,
-    double jdstart, double step, int backw, double dayspan, int flag,
-    double *jdret, double *posret0, double *posret1, char *err);
+int swh_next_aspect_with(
+    int planet,
+    double aspect,
+    int other,
+    char* star,
+    double jdstart,
+    int backw,
+    double stop,
+    int flags,
+    double* jdret,
+    double* posret1,
+    double* posret2,
+    char* err);
 
 /** @brief Find next aspect between two moving objects
  *
@@ -139,9 +172,19 @@ int swh_next_aspect_with(int planet, double aspect, int other, char *star,
  * swh_next_aspect_with several times, especially when scanning
  * long periods of time.
  */
-int swh_next_aspect_with2(int planet, double aspect, int other, char *star,
-    double jdstart, double step, int backw, double dayspan, int flag,
-    double *jdret, double *posret0, double *posret1, char *err);
+int swh_next_aspect_with2(
+    int planet,
+    double aspect,
+    int other,
+    char* star,
+    double jdstart,
+    int backw,
+    double stop,
+    int flags,
+    double* jdret,
+    double* posret1,
+    double* posret2,
+    char* err);
 
 /** @brief Find next aspect to a house cusp
  *
@@ -172,10 +215,22 @@ int swh_next_aspect_with2(int planet, double aspect, int other, char *star,
  * @param err Buffer for errors, declared as char[256]
  * @return 0 on success, -1 on error
  */
-int swh_next_aspect_cusp(int planet, char *star, double aspect, int cusp,
-    double jdstart, double lat, double lon, int hsys, double step, int backw,
-    int flag, double *jdret, double *posret, double *cuspsret, double *ascmcret,
-    char *err);
+int swh_next_aspect_cusp(
+    int planet,
+    char* star,
+    double aspect,
+    int cusp,
+    double jdstart,
+    double lat,
+    double lon,
+    int hsys,
+    int backw,
+    int flags,
+    double* jdret,
+    double* posret,
+    double* cuspsret,
+    double* ascmcret,
+    char* err);
 
 /** @brief Find next aspect to a house cusp
  *
@@ -188,10 +243,22 @@ int swh_next_aspect_cusp(int planet, char *star, double aspect, int cusp,
  * swh_next_aspect_cusp several times, especially when scanning
  * long periods of time.
  */
-int swh_next_aspect_cusp2(int planet, char *star, double aspect, int cusp,
-    double jdstart, double lat, double lon, int hsys, double step, int backw,
-    int flag, double *jdret, double *posret, double *cuspsret, double *ascmcret,
-    char *err);
+int swh_next_aspect_cusp2(
+    int planet,
+    char* star,
+    double aspect,
+    int cusp,
+    double jdstart,
+    double lat,
+    double lon,
+    int hsys,
+    int backw,
+    int flags,
+    double* jdret,
+    double* posret,
+    double* cuspsret,
+    double* ascmcret,
+    char* err);
 
 /** @brief Aspect matching
  *
