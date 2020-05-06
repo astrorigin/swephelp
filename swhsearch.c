@@ -28,72 +28,6 @@ static double swh_precision = ((1.0/86400)/2);
 
 #define ISPOSITIVE(x)   ((x) > 0 ? 1 : 0)
 
-int swh_min_retro_time(int planet, char *err)
-{
-    int days;
-    switch (planet)
-    { /* days MUST be inferior to the minimum retrogradation time
-        tested from 1.1.-3000 to 1.1.3000 when possible */
-    case SE_SUN: strcpy(err, "Sun retro?"); return -1;
-    case SE_MOON: strcpy(err, "Moon retro?"); return -1;
-    case SE_MERCURY: days = 16; break; /* ~19 days */
-    case SE_VENUS: days = 37; break; /* ~40 days */
-    case SE_MARS: days = 56; break; /* ~59 days */
-    case SE_JUPITER: days = 114; break; /* ~117 days */
-    case SE_SATURN: days = 129; break; /* ~132 days */
-    case SE_URANUS: days = 145; break; /* ~148 days */
-    case SE_NEPTUNE: days = 153; break; /* ~156 days */
-    case SE_PLUTO: days = 153; break; /* ~156 days */
-    case SE_MEAN_NODE: strcpy(err, "Mean node retro?"); return -1;
-    case SE_TRUE_NODE: strcpy(err, "True node retro?"); return -1;
-    case SE_MEAN_APOG: strcpy(err, "Mean apogee retro?"); return -1;
-    case SE_OSCU_APOG: strcpy(err, "Oscul. apogee retro?"); return -1;
-    case SE_EARTH: strcpy(err, "Earth retro?"); return -1;
-    case SE_CHIRON: days = 125; break; /* ~128 days */
-    case SE_PHOLUS: days = 125; break; /* ~128 days */
-    case SE_CERES: days = 85; break; /* ~88 days */
-    case SE_PALLAS: days = 46; break; /* ~49 days */
-    case SE_JUNO: days = 68; break; /* ~71 days */
-    case SE_VESTA: days = 81; break; /* ~84 days */
-    /* TODO more planets */
-    default: days = 10; /* default... */
-    }
-    return days;
-}
-
-int swh_max_retro_time(int planet, char *err)
-{
-    int days;
-    switch (planet)
-    { /* days MUST be superior to maximum retrogradation time
-        tested from 1.1.-3000 to 1.1.3000 when possible */
-    case SE_SUN: strcpy(err, "Sun retro?"); return -1;
-    case SE_MOON: strcpy(err, "Moon retro?"); return -1;
-    case SE_MERCURY: days = 27; break; /* ~25 days */
-    case SE_VENUS: days = 46; break; /* ~44 days */
-    case SE_MARS: days = 84; break; /* ~84 days */
-    case SE_JUPITER: days = 126; break; /* ~124 days */
-    case SE_SATURN: days = 145; break; /* ~143 days */
-    case SE_URANUS: days = 157; break; /* ~155 days */
-    case SE_NEPTUNE: days = 163; break; /* ~161 days */
-    case SE_PLUTO: days = 168; break; /* ~166 days */
-    case SE_MEAN_NODE: strcpy(err, "Mean node retro?"); return -1;
-    case SE_TRUE_NODE: strcpy(err, "True node retro?"); return -1;
-    case SE_MEAN_APOG: strcpy(err, "Mean apogee retro?"); return -1;
-    case SE_OSCU_APOG: strcpy(err, "Oscul. apogee retro?"); return -1;
-    case SE_EARTH: strcpy(err, "Earth retro?"); return -1;
-    case SE_CHIRON: days = 160; break; /* ~158 days */
-    case SE_PHOLUS: days = 172; break; /* ~170 days */
-    case SE_CERES: days = 109; break; /* ~107 days */
-    case SE_PALLAS: days = 123; break; /* ~121 days */
-    case SE_JUNO: days = 116; break; /* ~114 days */
-    case SE_VESTA: days = 100; break; /* ~98 days */
-    /* TODO more planets */
-    default: days = 150; /* default... */
-    }
-    return days;
-}
-
 int swh_next_retro(int planet, double jdstart, double step, int backw,
     double dayspan, int flag, double *jdret, double *posret, char *err)
 {
@@ -143,49 +77,6 @@ int swh_next_retro(int planet, double jdstart, double step, int backw,
         }
     }
     return 0;
-}
-
-int swh_go_past(int planet, double fixedpt, double jdstart, double step,
-    int backw, int flag, double *jdret, double *posret, char *err)
-{
-    int res;
-    double testjd, difdegn[2], difdeg2n[2];
-    /* find step if 0 */
-    if (step == 0)
-    {
-        step = swh_min_retro_time(planet, err);
-        if (step < 0) { step = 10; } /* never retro, use default step */
-    } else { step = fabs(step); }
-    /* get start position */
-    res = swe_calc_ut(jdstart, planet, flag, posret, err);
-    if (res < 0) { return -1; }
-    /* get difference between start pt and fixed pt */
-    difdegn[1] = swe_difdegn(posret[0], fixedpt);
-    difdeg2n[1] = swe_difdeg2n(posret[0], fixedpt);
-    *jdret = jdstart;
-    while (1)
-    {
-        *jdret = (backw) ? *jdret-step : *jdret+step;
-        res = swe_calc_ut(*jdret, planet, flag, posret, err);
-        if (res < 0) { return -1; }
-        if (posret[3] < 0)
-        {
-            res = swh_next_retro(planet, *jdret, step, (backw) ? 0 : 1,
-                0, flag, &testjd, posret, err);
-            if (res < 0) { return -1; }
-        }
-        else { testjd = *jdret; }
-        difdegn[0] = swe_difdegn(posret[0], fixedpt);
-        difdeg2n[0] = swe_difdeg2n(posret[0], fixedpt);
-        if (ISPOSITIVE(difdeg2n[1]) != ISPOSITIVE(difdeg2n[0])
-            && fabs(difdegn[1]-difdegn[0]) > 180)
-        {
-            *jdret = testjd;
-            return 0;
-        }
-        difdegn[1] = difdegn[0];
-        difdeg2n[1] = difdeg2n[0];
-    }
 }
 
 int swh_next_aspect(int planet, double aspect, double fixedpt, double jdstart,

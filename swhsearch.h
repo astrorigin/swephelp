@@ -25,42 +25,6 @@ extern "C"
 {
 #endif
 
-/** @brief Get the minimum retrogradation time of a planet, in days
- *
- * This function is mainly used in swephelp search routines.
- *
- * The returned value is ~3 days inferior to the "real" minimum
- * retrogradation time (tested from 1.1.-3000 to 1.1.3000 when possible).
- *
- * @remarks May return 10 (default) if the planet is not implemented.
- * This may be the case if you want some unusual asteroid. If you need to
- * speed search routines, you may try to compute the retrogradation time
- * using the minretro.py script, add one line to the source code, and recompile.
- *
- * @todo Implement more planets, main asteroids...
- *
- * @param planet Planet number (SE_*, etc)
- * @param err Buffer for errors, declared as char[32] (or more)
- * @return Number of days, or -1 if planet is never retrograde.
- */
-int swh_min_retro_time(int planet, char *err);
-
-/** @brief Get the maximum retrogradation time of a planet, in days
- *
- * Thought this function would be usefull in search routines, but
- * seems like it is not (?).
- *
- * @remarks The returned value is ~2 days superior to the "real" maximum
- * retrogradation time (tested from 1.1.-3000 to 1.1.3000 when possible).
- *
- * @deprecated This function is not usefull. May disappear one day
- *
- * @param planet Planet number (SE_*, etc)
- * @param err Buffer for errors, declared as char[32] (or more)
- * @return Number of days, or -1 if planet is never retrograde.
- */
-int swh_max_retro_time(int planet, char *err);
-
 /** @brief Find next direction changing of object
  *
  * This function tries to find when and where a planet in direct or
@@ -89,30 +53,6 @@ int swh_max_retro_time(int planet, char *err);
  */
 int swh_next_retro(int planet, double jdstart, double step, int backw,
     double dayspan, int flag, double *jdret, double *posret, char *err);
-
-/** @brief Get an estimation of when a planet is gone past a fixed point
- *
- * Get Julian day number and positions when a celestial object is gone past
- * a fixed point expressed in longitude degrees. This is not meant to be
- * precise at all. Mainly used in swephelp search routines.
- *
- * @attention Same warning as in swh_next_retro.
- *
- * @remarks If step is set to 0, use a predefined step (recommended).
- *
- * @param planet Planet number (SE_*, etc)
- * @param fixedpt Fixed pointed targeted [0;360[
- * @param jdstart Julian day number, when search is starting
- * @param step Number of days used in the dichotomic search process
- * @param backw Search before jdstart [1], or after [0] (boolean)
- * @param flag Calculation flags, see swisseph docs
- * @param jdret Julian day number found
- * @param posret Planet's positions found
- * @param err Buffer for errors, declared as char[256]
- * @return 0 on success, -1 on error
- */
-int swh_go_past(int planet, double fixedpt, double jdstart, double step,
-    int backw, int flag, double *jdret, double *posret, char *err);
 
 /** @brief Find next exact aspect to a fixed point
  *
