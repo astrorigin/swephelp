@@ -60,7 +60,9 @@ int swh_secsearch(
     if (x)
         return 1;
 
-    while (f1 * f2 >= 0) {
+    while (f1 * f2 >= 0
+        || fabs(f2) > 90) /* trick swe_difdeg2n jumps */
+    {
         t2 = t1;
         f2 = f1;
         t1 = tstart + (++i * step);
@@ -145,7 +147,7 @@ int _swh_next_aspect(double t, void* fargs, double* ret, char* err)
     int x = swe_calc_ut(t, args->planet, args->flags, res, err);
     if (x < 0)
         return x;
-    *ret = swe_difdeg2n(res[0], args->fixedpt + args->aspect);
+    *ret = swe_difdeg2n(res[0] + args->aspect, args->fixedpt);
     return 0;
 }
 
@@ -161,8 +163,8 @@ int swh_next_aspect(
     double* posret,
     char* err)
 {
-    swh_next_aspect_args_t args = {planet, swe_difdegn(aspect, 0),
-                                   fixedpt, flags};
+    swh_next_aspect_args_t args = {planet, swe_degnorm(aspect),
+                                   swe_degnorm(fixedpt), flags};
 
     int x = swh_secsearch(jdstart, &_swh_next_aspect, &args,
                           backw ? -STEP: STEP, stop, jdret, err);
@@ -189,7 +191,8 @@ int swh_next_aspect2(
     int x1 = 0, x2 = 0;
     double jd1 = 0, jd2 = 0;
     const double aspnorm = swe_difdeg2n(aspect, 0);
-    swh_next_aspect_args_t args = {planet, aspnorm, fixedpt, flags};
+    swh_next_aspect_args_t args = {planet, aspnorm,
+                                   swe_degnorm(fixedpt), flags};
 
     x1 = swh_secsearch(jdstart, &_swh_next_aspect, &args,
                        backw ? -STEP : STEP, stop, &jd1, err);
@@ -223,8 +226,8 @@ int swh_next_aspect2(
     else
         *jdret = !x1 ? jd1 : jd2;
     if (posret) {
-        int i = swe_calc_ut(*jdret, planet, flags, posret, err);
-        if (i < 0)
+        x1 = swe_calc_ut(*jdret, planet, flags, posret, err);
+        if (x1 < 0)
             return 1;
     }
     return 0;
@@ -267,7 +270,7 @@ int _swh_next_aspect_with(double t, void* fargs, double* ret, char* err)
     }
     if (x2 < 0)
         return x2;
-    *ret = swe_difdeg2n(res1[0], res2[0] + args->aspect);
+    *ret = swe_difdeg2n(res1[0] + args->aspect, res2[0]);
     return 0;
 }
 
@@ -285,7 +288,7 @@ int swh_next_aspect_with(
     double* posret2,
     char* err)
 {
-    swh_next_aspect_with_args_t args = {planet, swe_difdegn(aspect, 0),
+    swh_next_aspect_with_args_t args = {planet, swe_degnorm(aspect),
                                         other, star, flags, NULL};
 
     int x = swh_secsearch(jdstart, &_swh_next_aspect_with, &args,
@@ -314,7 +317,7 @@ int swh_next_aspect_with(
         }
         else {
             assert(!args.starbuf);
-            x = swe_calc_ut(*jdret, planet, flags, posret2, err);
+            x = swe_calc_ut(*jdret, other, flags, posret2, err);
             if (x < 0)
                 return 1;
         }
@@ -378,7 +381,7 @@ int swh_next_aspect_with2(
             }
             else {
                 assert(!args.starbuf);
-                x1 = swe_calc_ut(jd1, planet, flags, posret2, err);
+                x1 = swe_calc_ut(jd1, other, flags, posret2, err);
                 if (x1 < 0)
                     return 1;
             }
@@ -427,7 +430,7 @@ int swh_next_aspect_with2(
         }
         else {
             assert(!args.starbuf);
-            x1 = swe_calc_ut(jd1, planet, flags, posret2, err);
+            x1 = swe_calc_ut(jd1, other, flags, posret2, err);
             if (x1 < 0)
                 return 1;
         }
@@ -452,7 +455,7 @@ typedef struct
 
 int _swh_next_aspect_cusp(double t, void* fargs, double* ret, char* err)
 {
-    int x1 = 0, x2 = 0;
+    int x = 0;
     swh_next_aspect_cusp_args_t* args = fargs;
     double res1[6] = {0,0,0,0,0,0};
     double res2[37] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -463,25 +466,24 @@ int _swh_next_aspect_cusp(double t, void* fargs, double* ret, char* err)
         if (!args->starbuf) {
             args->starbuf = malloc((SE_MAX_STNAME*2)+1);
             if (!args->starbuf) {
-                *err = '\0';
-                strcat(err, "nomem");
+                sprintf(err, "nomem");
                 return 1;
             }
             memset(args->starbuf, 0, (SE_MAX_STNAME*2)+1);
             strncpy(args->starbuf, args->star, SE_MAX_STNAME*2);
         }
-        x1 = swe_fixstar2_ut(args->starbuf, t, args->flags, res1, err);
+        x = swe_fixstar2_ut(args->starbuf, t, args->flags, res1, err);
     }
     else {
-        x1 = swe_calc_ut(t, args->planet, args->flags, res1, err);
+        x = swe_calc_ut(t, args->planet, args->flags, res1, err);
     }
-    if (x1 < 0)
-        return x1;
-    x2 = swe_houses_ex(t, args->flags, args->lat, args->lon,
-                       args->hsys, res2, ascmc);
-    if (x2 < 0)
-        return x2;
-    *ret = swe_difdeg2n(res1[0], res2[args->cusp] + args->aspect);
+    if (x < 0)
+        return x;
+    x = swe_houses_ex(t, args->flags, args->lat, args->lon,
+                      args->hsys, res2, ascmc);
+    if (x < 0)
+        return x;
+    *ret = swe_difdeg2n(res1[0] + args->aspect, res2[args->cusp]);
     return 0;
 }
 
@@ -503,10 +505,10 @@ int swh_next_aspect_cusp(
     char* err)
 {
     int x = 0;
-    swh_next_aspect_cusp_args_t args = {planet, star, swe_difdegn(aspect, 0),
+    swh_next_aspect_cusp_args_t args = {planet, star, swe_degnorm(aspect),
                                         cusp, lat, lon, hsys, flags, NULL};
 
-    if (cusp < 0 || cusp > (hsys == 71 ? 36 : 11)) {
+    if (cusp < 1 || cusp > (hsys == 71 ? 36 : 12)) {
         assert(err);
         sprintf(err, "invalid cusp (%d)", cusp);
         return 1;
@@ -571,7 +573,7 @@ int swh_next_aspect_cusp2(
     swh_next_aspect_cusp_args_t args = {planet, star, aspnorm, cusp,
                                         lat, lon, hsys, flags, NULL};
 
-    if (cusp < 0 || cusp > (hsys == 71 ? 36 : 11)) {
+    if (cusp < 1 || cusp > (hsys == 71 ? 36 : 12)) {
         assert(err);
         sprintf(err, "invalid cusp (%d)", cusp);
         return 1;
