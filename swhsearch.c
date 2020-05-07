@@ -245,14 +245,14 @@ typedef struct
 
 int _swh_next_aspect_with(double t, void* fargs, double* ret, char* err)
 {
-    int x1 = 0, x2 = 0;
+    int x = 0;
     swh_next_aspect_with_args_t* args = fargs;
     double res1[6] = {0,0,0,0,0,0};
     double res2[6] = {0,0,0,0,0,0};
 
-    x1 = swe_calc_ut(t, args->planet, args->flags, res1, err);
-    if (x1 < 0)
-        return x1;
+    x = swe_calc_ut(t, args->planet, args->flags, res1, err);
+    if (x < 0)
+        return x;
     if (args->star) {
         if (!args->starbuf) {
             args->starbuf = malloc((SE_MAX_STNAME*2)+1);
@@ -263,13 +263,13 @@ int _swh_next_aspect_with(double t, void* fargs, double* ret, char* err)
             memset(args->starbuf, 0, (SE_MAX_STNAME*2)+1);
             strncpy(args->starbuf, args->star, SE_MAX_STNAME*2);
         }
-        x2 = swe_fixstar2_ut(args->starbuf, t, args->flags, res2, err);
+        x = swe_fixstar2_ut(args->starbuf, t, args->flags, res2, err);
     }
     else {
-        x2 = swe_calc_ut(t, args->other, args->flags, res2, err);
+        x = swe_calc_ut(t, args->other, args->flags, res2, err);
     }
-    if (x2 < 0)
-        return x2;
+    if (x < 0)
+        return x;
     *ret = swe_difdeg2n(res1[0] + args->aspect, res2[0]);
     return 0;
 }
@@ -422,7 +422,7 @@ int swh_next_aspect_with2(
     if (posret2) {
         if (star) {
             assert(args.starbuf);
-            x1 = swe_fixstar2_ut(args.starbuf, jd1, flags, posret2, err);
+            x1 = swe_fixstar2_ut(args.starbuf, *jdret, flags, posret2, err);
             if (x1 < 0) {
                 free(args.starbuf);
                 return 1;
@@ -430,7 +430,7 @@ int swh_next_aspect_with2(
         }
         else {
             assert(!args.starbuf);
-            x1 = swe_calc_ut(jd1, other, flags, posret2, err);
+            x1 = swe_calc_ut(*jdret, other, flags, posret2, err);
             if (x1 < 0)
                 return 1;
         }
