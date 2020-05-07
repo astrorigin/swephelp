@@ -30,26 +30,20 @@ extern "C"
  * This function tries to find when and where a planet in direct or
  * retrograde motion goes retrograde or direct (respectively).
  *
- * @attention If step is set to 0, use a predefined step (recommended); it must
- * be inferior to the planet's minimum retrogradation time.
- *
- * @remarks If dayspan is set to 0, the search is not limited in time.
- * Otherwise, the function may return 1 when time limit has been reached.
+ * @remarks If stop is set to 0, the search is not limited in time.
+ * Otherwise, the function may return 2 when time limit has been reached.
  * Flag must include SEFLG_SPEED, and SEFLG_NOGDEFL to avoid bad surprises;
  * alternatively use true positions.
  *
- * @see swh_min_retro_time()
- *
  * @param planet Planet number (SE_*, etc)
  * @param jdstart Julian day number, when search is starting
- * @param step Number of days used in the dichotomic search process
  * @param backw Search before jdstart [1], or after [0] (boolean)
- * @param dayspan Limit search to a certain time, expressed in days
- * @param flag Calculation flags, see swisseph docs
+ * @param stop Limit search to a certain time, expressed in days
+ * @param flags Calculation flags, see swisseph docs
  * @param jdret Julian day number found
  * @param posret Planet's positions found
  * @param err Buffer for error, declared as char[256]
- * @return 0 on success, 1 if time limit reached, -1 on error
+ * @return 0 on success, 2 if time limit reached, 1 on error
  */
 int swh_next_retro(
     int planet,
@@ -66,24 +60,20 @@ int swh_next_retro(
  * Get Julian day number and positions when a celestial object makes a
  * longitudinal aspect to a fixed point expressed in longitude degrees.
  *
- * @attention Same warning as in swh_next_retro.
- *
- * @remarks If step is set to 0, use a predefined step (recommended).
- * If dayspan is set to 0, the search is not limited in time.
- * Otherwise, the function may return 1 when time limit has been reached.
+ * @remarks If stop is set to 0, the search is not limited in time.
+ * Otherwise, the function may return 2 when time limit has been reached.
  *
  * @param planet Planet number (SE_*, etc)
  * @param aspect Aspect, in degrees [0;360[
  * @param fixedpt Fixed point targeted [0;360[
  * @param jdstart Julian day number, when search is starting
- * @param step Number of days used in the dichotomic search process
  * @param backw Search before jdstart [1], or after [0] (boolean)
- * @param dayspan Limit search to a certain time, expressed in days
- * @param flag Calculation flags, see swisseph docs
+ * @param stop Limit search to a certain time, expressed in days
+ * @param flags Calculation flags, see swisseph docs
  * @param jdret Julian day number found
  * @param posret Planet's positions found
  * @param err Buffer for errors, declared as char[256]
- * @return 0 on success, 1 if time limit reached, -1 on error
+ * @return 0 on success, 2 if time limit reached, 1 on error
  */
 int swh_next_aspect(
     int planet,
@@ -102,10 +92,6 @@ int swh_next_aspect(
  * Same as swh_next_aspect but with aspect in [0;180], instead of [0;360[.
  *
  * @see swh_next_aspect()
- *
- * @remarks If aspect is not 0 or 180, it will try two aspects [0;360[,
- * and return the nearest from jdstart. It may then be faster to use
- * swh_next_aspect several times, especially when scanning long periods of time.
  */
 int swh_next_aspect2(
     int planet,
@@ -124,28 +110,23 @@ int swh_next_aspect2(
  * Get Julian day number and positions when a celestial object makes a
  * longitudinal aspect to another moving object.
  *
- * @attention Here, step may not be set to 0. If you estimate that the aspect
- * is to occur in a very long time, you better set it to a high value, for
- * faster results. In doubt, set it to 10.
- *
- * @remarks If star != "", the other planet is ignored.
- * If dayspan is set to 0, the search is not limited in time.
- * Otherwise, the function may return 1 when time limit has been reached.
+ * @remarks If star != NULL, the other planet is ignored.
+ * If stop is set to 0, the search is not limited in time.
+ * Otherwise, the function may return 2 when time limit has been reached.
  *
  * @param planet Planet number (SE_*, etc)
  * @param aspect Aspect, in degrees [0;360[
  * @param other Other planet number
  * @param star Fixed star
  * @param jdstart Julian day number, when search is starting
- * @param step Number of days used in the dichotomic search process
  * @param backw Search before jdstart [1], or after [0] (boolean)
- * @param dayspan Limit search to a certain time, expressed in days
- * @param flag Calculation flags, see swisseph docs
+ * @param stop Limit search to a certain time, expressed in days
+ * @param flags Calculation flags, see swisseph docs
  * @param jdret Julian day number found
- * @param posret0 Planet's positions found
- * @param posret1 Other planet (or star) positions found
+ * @param posret1 Planet's positions found
+ * @param posret2 Other planet (or star) positions found
  * @param err Buffer for errors, declared as char[256]
- * @return 0 on success, 1 if time limit reached, -1 on error
+ * @return 0 on success, 2 if time limit reached, 1 on error
  */
 int swh_next_aspect_with(
     int planet,
@@ -166,11 +147,6 @@ int swh_next_aspect_with(
  * Same as swh_next_aspect_with, but aspect in [0;180], instead of [0;360[.
  *
  * @see swh_next_aspect_with()
- *
- * @remarks If aspect is not 0 or 180, it will try two aspects [0;360[, and
- * return the nearest from jdstart. It may then be faster to use
- * swh_next_aspect_with several times, especially when scanning
- * long periods of time.
  */
 int swh_next_aspect_with2(
     int planet,
@@ -191,9 +167,7 @@ int swh_next_aspect_with2(
  * Get Julian day number and positions, and houses cusps, when a
  * celestial object makes longitudinal aspect to a house cusp.
  *
- * @attention Here, step may not be too high, or 0. Setting it to 0.2 is enough.
- *
- * @remarks If star != "", the planet is ignored.
+ * @remarks If star != NULL, the planet is ignored.
  *
  * @see For risings, settings, meridian transits, see swe_rise_trans.
  *
@@ -205,15 +179,14 @@ int swh_next_aspect_with2(
  * @param lat Latitude, in degrees (north is positive)
  * @param lon Longitude, in degrees (east is positive)
  * @param hsys House system, see swisseph docs
- * @param step Number of days used in the dichotomic search process
  * @param backw Search before jdstart [1], or after [0] (boolean)
- * @param flag Calculation flags, see swisseph docs
+ * @param flags Calculation flags, see swisseph docs
  * @param jdret Julian day number found
  * @param posret Planet (or fixed star) positions found
  * @param cuspsret House cusps positions found
  * @param ascmcret Asc-Mc-etc found, see swisseph docs
  * @param err Buffer for errors, declared as char[256]
- * @return 0 on success, -1 on error
+ * @return 0 on success, 1 on error
  */
 int swh_next_aspect_cusp(
     int planet,
@@ -237,11 +210,6 @@ int swh_next_aspect_cusp(
  * Same as swh_next_aspect_cusp, but aspect in [0;180], instead of [0;360[.
  *
  * @see swh_next_aspect_cusp()
- *
- * @remarks If aspect is not 0 or 180, it will try two aspects [0;360[, and
- * return the nearest from jdstart. It may then be faster to use
- * swh_next_aspect_cusp several times, especially when scanning
- * long periods of time.
  */
 int swh_next_aspect_cusp2(
     int planet,
