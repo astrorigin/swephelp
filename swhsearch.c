@@ -67,7 +67,7 @@ int swh_secsearch(
         f2 = f1;
         t1 = tstart + (++i * step);
 
-        if (stop) {
+        if (stop && i > 1) {
             if (step > 0) {
                 if (t1 > tstop)
                     return 2;
