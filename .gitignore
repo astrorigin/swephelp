@@ -1,6 +1,7 @@
 # swephelp .gitignore
 
 /build*
+/test*
 
 *~
 *.a

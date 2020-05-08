@@ -3,8 +3,8 @@
 CC = cc
 CFLAGS = -g -O3 -Wall -Werror=declaration-after-statement -std=gnu99
 DESTDIR = /usr/local
-# path to swephexp.h
-SWEDIR = $(HOME)/pro/swisseph/git
+# path to swephexp.h and libswe.a
+SWEDIR = /usr/local/opt/swisseph
 
 SWHINC = swephelp.h \
 	 swhdatetime.h \
@@ -36,11 +36,22 @@ libswephelp.a: $(SWHOBJ)
 libswephelp.so: $(SWHOBJ)
 	$(CC) -shared -o $@ $(SWHOBJ)
 
+test: test.o libswephelp.a
+	$(CC) $(CFLAGS) -o $@ $< -L. -lswephelp -L$(SWEDIR) -lswe -lm -ldl
+
 .PHONY: all clean
 
 all: libswephelp.a
 
 clean:
-	rm -f *.o libswephelp.*
+	rm -f *.o libswephelp.* test
+
+swhdatetime.o: swhdatetime.h swhwin.h
+swhformat.o: swhformat.h
+swhgeo.o: swhgeo.h swhwin.h
+swhmisc.o: swhmisc.h
+swhraman.o: swhdef.h swhraman.h
+swhsearch.o: swhsearch.h
+swhutil.o: swhutil.h
 
 # vi: sw=4 ts=4 noet
