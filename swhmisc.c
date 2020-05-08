@@ -17,9 +17,33 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <assert.h>
 #include <swephexp.h>
 
 #include "swhmisc.h"
+
+int swh_calc_ut(
+    double tjdut,
+    int planet,
+    char* star,
+    int flags,
+    double* res,
+    char* stnamret,
+    char* err)
+{
+    assert(res);
+    assert(err);
+
+    if (star) {
+        assert(stnamret);
+        if (!*stnamret) {
+            memset(stnamret, 0, (SE_MAX_STNAME*2)+1);
+            strncpy(stnamret, star, SE_MAX_STNAME*2);
+        }
+        return swe_fixstar2_ut(stnamret, tjdut, flags, res, err);
+    }
+    return swe_calc_ut(tjdut, planet, flags, res, err);
+}
 
 int swh_saturn_4_stars( const double jd, const int flag, double* ret, char* err )
 {

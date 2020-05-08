@@ -25,6 +25,32 @@ extern "C"
 {
 #endif
 
+/** @brief Somewhat higher-level interface to swe_calc_ut/swe_fixstar2_ut
+ *  @param tjdut Julian day UT
+ *  @param planet Planet number
+ *  @param star Star name, or NULL
+ *  @param flags Swisseph calculation flags
+ *  @param res Returned results, array for 6 double
+ *  @param stnamret If star != NULL, buffer for returned star name
+ *  @param err Buffer for errors
+ *  @return Returned calculation flags
+ *
+ *  In case of star calculation (star != NULL), param stnamret must first be
+ *  initialized with {'\0'}, and size (ST_MAX_STNAME*2)+1. If it is not empty,
+ *  it wont be overwritten by the param star, and is used directly for
+ *  a subsequent calculation.
+ *
+ *  @remark Made for pyswisseph.
+ */
+int swh_calc_ut(
+    double tjdut,
+    int planet,
+    char* star,
+    int flags,
+    double* res,
+    char* stnamret,
+    char* err);
+
 /** @brief Calculate Halbronn's "Saturn 4 Stars" index value
  *  @param jd Julian day UT
  *  @param flag Calculation flags, see Swisseph docs
