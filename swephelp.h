@@ -20,11 +20,6 @@
 #ifndef SWEPHELP_H
 #define SWEPHELP_H
 
-/* use a global mutex to protect swisseph data */
-#ifndef SWH_USE_THREADS
-#define SWH_USE_THREADS     1
-#endif
-
 /* include swisseph functions */
 #include <swephexp.h>
 
@@ -36,7 +31,6 @@
 #include "swhmisc.h"
 #include "swhraman.h"
 #include "swhsearch.h"
-#include "swhutil.h"
 
 #endif /* SWEPHELP_H */
 /* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

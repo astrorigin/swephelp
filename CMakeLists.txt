@@ -11,8 +11,7 @@ set( SOURCES
     swhgeo.c
     swhmisc.c
     swhraman.c
-    swhsearch.c
-    swhutil.c )
+    swhsearch.c )
 
 set( HEADERS
     swephelp.h
@@ -23,7 +22,6 @@ set( HEADERS
     swhmisc.h
     swhraman.h
     swhsearch.h
-    swhutil.h
     swhwin.h )
 
 include_directories( BEFORE .

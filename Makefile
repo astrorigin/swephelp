@@ -14,7 +14,6 @@ SWHINC = swephelp.h \
 	 swhmisc.h \
 	 swhraman.h \
 	 swhsearch.h \
-	 swhutil.h \
 	 swhwin.h
 
 SWHOBJ = swhdatetime.o \
@@ -22,8 +21,7 @@ SWHOBJ = swhdatetime.o \
 	 swhgeo.o \
 	 swhmisc.o \
 	 swhraman.o \
-	 swhsearch.o \
-	 swhutil.o
+	 swhsearch.o
 
 .DEFAULT_GOAL := all
 
@@ -52,6 +50,5 @@ swhgeo.o: swhgeo.h swhwin.h
 swhmisc.o: swhmisc.h
 swhraman.o: swhdef.h swhraman.h
 swhsearch.o: swhsearch.h
-swhutil.o: swhutil.h
 
 # vi: sw=4 ts=4 noet
