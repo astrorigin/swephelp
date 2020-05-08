@@ -35,9 +35,9 @@ extern "C"
  *
  * @param pos Longitude position [0;360[
  * @param ret Results, declared as int[4] (deg, sign, min, sec)
- * @return 0
+ * @return -
  */
-int swh_degsplit(double pos, int *ret);
+void swh_degsplit(double pos, int *ret);
 
 /** @brief Get the string representing a sign number
  * @param sign Sign number [0;11]

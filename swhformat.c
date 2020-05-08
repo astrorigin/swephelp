@@ -21,7 +21,7 @@
 
 #include "swhformat.h"
 
-int swh_degsplit(double pos, int *ret)
+void swh_degsplit(double pos, int *ret)
 {
     pos = swe_degnorm(pos);
     ret[1] = (int) floor(pos/30.0);
@@ -31,7 +31,6 @@ int swh_degsplit(double pos, int *ret)
     ret[2] = (int) floor(pos*60);
     pos -= ret[2]/60.0;
     ret[3] = (int) floor(pos*3600);
-    return 0;
 }
 
 int swh_signtostr(int sign, char *str)
