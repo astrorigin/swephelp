@@ -17,11 +17,11 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "swhsearch.h"
-
 #include <assert.h>
 #include <math.h>
 #include <swephexp.h>
+
+#include "swhsearch.h"
 
 #define STEP    (0.5)
 
@@ -186,7 +186,7 @@ int swh_next_aspect2(
     int flags,
     double* jdret,
     double* posret,
-    char *err)
+    char* err)
 {
     int x1 = 0, x2 = 0;
     double jd1 = 0, jd2 = 0;
@@ -202,8 +202,8 @@ int swh_next_aspect2(
         if (!x1) {
             *jdret = jd1;
             if (posret) {
-                int i = swe_calc_ut(jd1, planet, flags, posret, err);
-                if (i < 0)
+                x1 = swe_calc_ut(jd1, planet, flags, posret, err);
+                if (x1 < 0)
                     return 1;
             }
             return 0;
@@ -265,9 +265,8 @@ int _swh_next_aspect_with(double t, void* fargs, double* ret, char* err)
         }
         x = swe_fixstar2_ut(args->starbuf, t, args->flags, res2, err);
     }
-    else {
+    else
         x = swe_calc_ut(t, args->other, args->flags, res2, err);
-    }
     if (x < 0)
         return x;
     *ret = swe_difdeg2n(res1[0] + args->aspect, res2[0]);
@@ -474,9 +473,8 @@ int _swh_next_aspect_cusp(double t, void* fargs, double* ret, char* err)
         }
         x = swe_fixstar2_ut(args->starbuf, t, args->flags, res1, err);
     }
-    else {
+    else
         x = swe_calc_ut(t, args->planet, args->flags, res1, err);
-    }
     if (x < 0)
         return x;
     x = swe_houses_ex(t, args->flags, args->lat, args->lon,
@@ -640,9 +638,8 @@ int swh_next_aspect_cusp2(
         else
             *jdret = jd1 > jd2 ? jd1 : jd2;
     }
-    else {
+    else
         *jdret = !x1 ? jd1 : jd2;
-    }
     if (posret) {
         if (star) {
             assert(args.starbuf);
