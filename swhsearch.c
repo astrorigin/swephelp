@@ -31,6 +31,7 @@ int swh_secsearch(
     void* fargs,
     double step,
     double stop,
+    unsigned int recursive,
     double* ret,
     char* err)
 {
@@ -42,11 +43,6 @@ int swh_secsearch(
 
     unsigned int i = 0;
     int x = 0;
-
-    double a = 0;
-    double b = 0;
-    double c = 0;
-    double d = 0;
 
     assert(f);
     assert(step);
@@ -82,13 +78,16 @@ int swh_secsearch(
             return 1;
     }
 
-    a = f1 - f2;
-    b = t1 - t2;
-    c = 0 - f2;
-    d = (b * c) / a;
-
-    *ret = d + t2;
-    return 0;
+    if (recursive)
+        return swh_secsearch(t1, f, fargs, -step/4, 0, --recursive, ret, err);
+    else {
+        double a = f1 - f2;
+        double b = t1 - t2;
+        double c = 0 - f2;
+        double d = (b * c) / a;
+        *ret = d + t2;
+        return 0;
+    }
 }
 
 typedef struct
@@ -122,7 +121,7 @@ int swh_next_retro(
     swh_next_retro_args_t args = {planet, flags};
 
     int x = swh_secsearch(jdstart, &_swh_next_retro, &args,
-                          backw ? -STEP : STEP, stop, jdret, err);
+                          backw ? -STEP : STEP, stop, 0, jdret, err);
     if (!x && posret) {
         int i = swe_calc_ut(*jdret, planet, flags, posret, err);
         if (i < 0)
@@ -167,7 +166,7 @@ int swh_next_aspect(
                                    swe_degnorm(fixedpt), flags};
 
     int x = swh_secsearch(jdstart, &_swh_next_aspect, &args,
-                          backw ? -STEP: STEP, stop, jdret, err);
+                          backw ? -STEP: STEP, stop, 0, jdret, err);
     if (!x && posret) {
         int i = swe_calc_ut(*jdret, planet, flags, posret, err);
         if (i < 0)
@@ -195,7 +194,7 @@ int swh_next_aspect2(
                                    swe_degnorm(fixedpt), flags};
 
     x1 = swh_secsearch(jdstart, &_swh_next_aspect, &args,
-                       backw ? -STEP : STEP, stop, &jd1, err);
+                       backw ? -STEP : STEP, stop, 0, &jd1, err);
     if (x1 == 1)
         return 1;
     if (aspnorm == 0 || aspnorm == -180) {
@@ -212,7 +211,7 @@ int swh_next_aspect2(
     }
     args.aspect = swe_difdeg2n(0, aspect);
     x2 = swh_secsearch(jdstart, &_swh_next_aspect, &args,
-                       backw ? -STEP : STEP, stop, &jd2, err);
+                       backw ? -STEP : STEP, stop, 0, &jd2, err);
     if (x2 == 1)
         return 1;
     if (x1 == 2 && x2 == 2)
@@ -291,7 +290,7 @@ int swh_next_aspect_with(
                                         other, star, flags, NULL};
 
     int x = swh_secsearch(jdstart, &_swh_next_aspect_with, &args,
-                          backw ? -STEP : STEP, stop, jdret, err);
+                          backw ? -STEP : STEP, stop, 0, jdret, err);
     if (x) {
         if (args.starbuf)
             free(args.starbuf);
@@ -347,7 +346,7 @@ int swh_next_aspect_with2(
                                         star, flags, NULL};
 
     x1 = swh_secsearch(jdstart, &_swh_next_aspect_with, &args,
-                       backw ? -STEP : STEP, stop, &jd1, err);
+                       backw ? -STEP : STEP, stop, 0, &jd1, err);
     if (x1 == 1) {
         if (args.starbuf)
             free(args.starbuf);
@@ -391,7 +390,7 @@ int swh_next_aspect_with2(
     }
     args.aspect = swe_difdeg2n(0, aspect);
     x2 = swh_secsearch(jdstart, &_swh_next_aspect_with, &args,
-                       backw ? -STEP : STEP, stop, &jd2, err);
+                       backw ? -STEP : STEP, stop, 0, &jd2, err);
     if (x2 == 1) {
         if (args.starbuf)
             free(args.starbuf);
@@ -512,7 +511,7 @@ int swh_next_aspect_cusp(
         return 1;
     }
     x = swh_secsearch(jdstart, &_swh_next_aspect_cusp, &args,
-                      backw ? -0.05 : 0.05, 0, jdret, err);
+                      backw ? -0.05 : 0.05, 0, 0, jdret, err);
     if (x) {
         if (args.starbuf)
             free(args.starbuf);
@@ -577,7 +576,7 @@ int swh_next_aspect_cusp2(
         return 1;
     }
     x1 = swh_secsearch(jdstart, &_swh_next_aspect_cusp, &args,
-                       backw ? -0.05 : 0.05, 0, &jd1, err);
+                       backw ? -0.05 : 0.05, 0, 0, &jd1, err);
     if (x1 == 1) {
         if (args.starbuf)
             free(args.starbuf);
@@ -621,7 +620,7 @@ int swh_next_aspect_cusp2(
     }
     args.aspect = swe_difdeg2n(0, aspect);
     x2 = swh_secsearch(jdstart, &_swh_next_aspect_cusp, &args,
-                       backw ? -0.05 : 0.05, 0, &jd2, err);
+                       backw ? -0.05 : 0.05, 0, 0, &jd2, err);
     if (x2 == 1) {
         if (args.starbuf)
             free(args.starbuf);
