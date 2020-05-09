@@ -17,6 +17,7 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <assert.h>
 #include <swephexp.h>
 
 #include "swhformat.h"
@@ -35,23 +36,24 @@ void swh_degsplit(double pos, int *ret)
 
 int swh_signtostr(int sign, char *str)
 {
+    assert(str);
+    memset(str, 0, sizeof(char) * 12);
     switch (sign)
     {
-    case 0: strcpy(str, "Aries"); break;
-    case 1: strcpy(str, "Taurus"); break;
-    case 2: strcpy(str, "Gemini"); break;
-    case 3: strcpy(str, "Cancer"); break;
-    case 4: strcpy(str, "Leo"); break;
-    case 5: strcpy(str, "Virgo"); break;
-    case 6: strcpy(str, "Libra"); break;
-    case 7: strcpy(str, "Scorpio"); break;
-    case 8: strcpy(str, "Sagittarius"); break;
-    case 9: strcpy(str, "Capricorn"); break;
-    case 10: strcpy(str, "Aquarius"); break;
-    case 11: strcpy(str, "Pisces"); break;
+    case 0: strcpy(str, "Aries"); return 0;
+    case 1: strcpy(str, "Taurus"); return 0;
+    case 2: strcpy(str, "Gemini"); return 0;
+    case 3: strcpy(str, "Cancer"); return 0;
+    case 4: strcpy(str, "Leo"); return 0;
+    case 5: strcpy(str, "Virgo"); return 0;
+    case 6: strcpy(str, "Libra"); return 0;
+    case 7: strcpy(str, "Scorpio"); return 0;
+    case 8: strcpy(str, "Sagittarius"); return 0;
+    case 9: strcpy(str, "Capricorn"); return 0;
+    case 10: strcpy(str, "Aquarius"); return 0;
+    case 11: strcpy(str, "Pisces"); return 0;
     default: return -1;
     }
-    return 0;
 }
 
 int swh_house_system_name(char hsys, char *str)

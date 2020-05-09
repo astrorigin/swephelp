@@ -39,7 +39,7 @@ extern "C"
  */
 void swh_degsplit(double pos, int *ret);
 
-/** @brief Get the string representing a sign number
+/** @brief Get string representation (english) of zodiacal sign
  * @param sign Sign number [0;11]
  * @param str Returned string, declared as char[12]
  * @return 0, or -1 if sign was invalid
