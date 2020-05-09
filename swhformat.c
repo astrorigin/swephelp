@@ -58,26 +58,40 @@ int swh_signtostr(int sign, char *str)
 
 int swh_house_system_name(char hsys, char *str)
 {
-    switch (hsys)
-    {
-    case 'P': strcpy(str, "Placidus"); return 0;
-    case 'K': strcpy(str, "Koch"); return 0;
-    case 'R': strcpy(str, "Regiomontanus"); return 0;
-    case 'C': strcpy(str, "Campanus"); return 0;
-    case 'B': strcpy(str, "Alcabitius"); return 0;
-    case 'M': strcpy(str, "Morinus"); return 0;
-    case 'O': strcpy(str, "Porphyry"); return 0;
-    case 'A': strcpy(str, "Equal"); return 0;
-    case 'E': strcpy(str, "Equal"); return 0;
-    case 'H': strcpy(str, "Horizon/Azimuth"); return 0;
-    case 'V': strcpy(str, "Equal Vehlow"); return 0;
-    case 'X': strcpy(str, "Axial Rotation/Meridian"); return 0;
-    case 'G': strcpy(str, "Gauquelin"); return 0;
-    case 'T': strcpy(str, "Polich/Page"); return 0;
-    case 'U': strcpy(str, "Krusinski"); return 0;
-    case 'W': strcpy(str, "Whole Sign"); return 0;
-    case 'Y': strcpy(str, "APC Houses"); return 0;
-    default: return -1;
+    assert(str);
+    /* swe_house_name returns "Placidus" no matter what (as of v2.08)
+     * check variable hsys for validity */
+    switch (hsys) {
+    case 'A':
+    case 'B':
+    case 'C':
+    case 'D':
+    case 'E':
+    case 'F':
+    case 'G':
+    case 'H':
+    case 'I':
+    case 'i':
+    case 'K':
+    case 'L':
+    case 'M':
+    case 'N':
+    case 'O':
+    case 'P':
+    case 'Q':
+    case 'R':
+    case 'S':
+    case 'T':
+    case 'U':
+    case 'V':
+    case 'W':
+    case 'X':
+    case 'Y':
+        memset(str, 0, 50);
+        strncpy(str, swe_house_name(hsys), 49);
+        return 0;
+    default:
+        return -1;
     }
 }
 

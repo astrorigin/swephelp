@@ -46,9 +46,9 @@ void swh_degsplit(double pos, int *ret);
  */
 int swh_signtostr(int sign, char *str);
 
-/** @brief Get house system name
- * @param hsys House system char [PKRCBOAEHVXGU]
- * @param str Returned string, declared as char[25]
+/** @brief Get house system name (english)
+ * @param hsys House system char id [ABCDEFGHIiKLMNOPQRSTUVWXY]
+ * @param str Returned string, declared as char[50]
  * @return 0, or -1 if house system is unknown
  */
 int swh_house_system_name(char hsys, char *str);
