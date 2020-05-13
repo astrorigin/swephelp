@@ -30,6 +30,9 @@ extern "C"
  * This function tries to find when and where a planet in direct or
  * retrograde motion goes retrograde or direct (respectively).
  *
+ * @remarks Some planets or conditions (flags) wont be treated and the
+ * function will in those cases return 3.
+ *
  * @remarks If stop is set to 0, the search is not limited in time.
  * Otherwise, the function may return 2 when time limit has been reached.
  * Flag must include SEFLG_SPEED, and SEFLG_NOGDEFL to avoid bad surprises;
@@ -43,7 +46,7 @@ extern "C"
  * @param jdret Julian day number found
  * @param posret Planet's positions found
  * @param err Buffer for error, declared as char[256]
- * @return 0 on success, 2 if time limit reached, 1 on error
+ * @return 0 on success, 1 on error, 2 if limit reached, 3 if argument is invalid
  */
 int swh_next_retro(
     int planet,
