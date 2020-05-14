@@ -6,6 +6,7 @@ project( swephelp )
 message( STATUS "-- Configuring swephelp..." )
 
 set( SOURCES
+    swhaspect.c
     swhdatetime.c
     swhformat.c
     swhgeo.c
@@ -15,6 +16,7 @@ set( SOURCES
 
 set( HEADERS
     swephelp.h
+    swhaspect.h
     swhdatetime.h
     swhdef.h
     swhformat.h

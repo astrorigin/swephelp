@@ -231,58 +231,6 @@ int swh_next_aspect_cusp2(
     double* ascmcret,
     char* err);
 
-/** @brief Aspect matching
- *
- * Check if the two given positions match the aspect within the given orb.
- * This also calculates the difference between targeted aspect and distance
- * between objects, and if aspect is applicating or separating, or stable due
- * to equal speeds.
- *
- * @param pos0 First object longitude, in degrees [0;360[
- * @param speed0 First object longitude speed, in degrees per day
- * @param pos1 Second object longitude, in degrees [0;360[
- * @param speed1 Second object longitude speed, in degrees per day
- * @param aspect Aspect targeted, in degrees [0;360[
- * @param orb Orb allowed, in degrees
- * @param diffret Difference between aspect and objects distance, in degrees
- * @param applic Aspect applicating [-1], separating [1], or stable [0]
- * @param factor Aspect strength, compared to orb
- * @return 0 if aspect match, else -1
- */
-int swh_match_aspect(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double orb, double *diffret, int *applic, double *factor);
-
-/** @brief Aspect matching
- *
- * Same as swh_match_aspect, but aspect in [0;180], instead of [0;360[
- *
- * @see swh_match_aspect()
- */
-int swh_match_aspect2(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double orb, double *diffret, int *applic, double *factor);
-
-/** @brief Aspect matching
- *
- * Same as swh_match_aspect, but with a different orb in case aspect is
- * applying, separating, or stable.
- *
- * @see swh_match_aspect()
- */
-int swh_match_aspect3(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double app_orb, double sep_orb, double def_orb,
-    double *diffret, int *applic, double *factor);
-
-/** @brief Aspect matching
- *
- * Same as swh_match_aspect2, but with a different orb in case aspect is
- * applying, separating, or stable.
- *
- * @see swh_match_aspect2()
- */
-int swh_match_aspect4(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double app_orb, double sep_orb, double def_orb,
-    double *diffret, int *applic, double *factor);
-
 /** @brief Get number of years difference between two julian days
  *
  * One exact "astrological" year can be considered as one solar return.

@@ -7,21 +7,23 @@ DESTDIR = /usr/local
 SWEDIR = /usr/local/opt/swisseph
 
 SWHINC = swephelp.h \
-	 swhdatetime.h \
-	 swhdef.h \
-	 swhformat.h \
-	 swhgeo.h \
-	 swhmisc.h \
-	 swhraman.h \
-	 swhsearch.h \
-	 swhwin.h
+	swhaspect.h \
+	swhdatetime.h \
+	swhdef.h \
+	swhformat.h \
+	swhgeo.h \
+	swhmisc.h \
+	swhraman.h \
+	swhsearch.h \
+	swhwin.h
 
-SWHOBJ = swhdatetime.o \
-	 swhformat.o \
-	 swhgeo.o \
-	 swhmisc.o \
-	 swhraman.o \
-	 swhsearch.o
+SWHOBJ = swhaspect.o \
+	swhdatetime.o \
+	swhformat.o \
+	swhgeo.o \
+	swhmisc.o \
+	swhraman.o \
+	swhsearch.o
 
 .DEFAULT_GOAL := all
 
@@ -44,6 +46,7 @@ all: libswephelp.a
 clean:
 	rm -f *.o libswephelp.* test
 
+swhaspect.o: swhaspect.h
 swhdatetime.o: swhdatetime.h swhwin.h
 swhformat.o: swhformat.h
 swhgeo.o: swhgeo.h swhwin.h
