@@ -31,12 +31,13 @@ extern "C"
  * "{degrees}:{direction}:{minutes}:{seconds}".
  * Directions are given in a single char, 'N' for north, 'S' for south,
  * 'E' for east, 'W' for west.
+ * The part after direction (minutes and seconds) can optionaly be omitted.
  *
  * @param coord Latitude or longitude string
  * @param ret Returned double
- * @return 0 on success, or -1 if string is invalid
+ * @return 0 on success, or 1 if string is invalid
  */
-int swh_geoc2d(const char *coord, double *ret);
+int swh_geoc2d(const char* coord, double* ret);
 
 /** @brief Extract degrees, minutes and seconds from a geographical coordinate
  * @param coord Latitude or Longitude

@@ -19,6 +19,7 @@
 
 
 #include <assert.h>
+#include <ctype.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,62 +28,48 @@
 #include "swhgeo.h"
 #include "swhwin.h"
 
-int swh_geoc2d(const char *coord, double *ret)
+int swh_geoc2d(const char* coord, double* ret)
 {
-#ifndef WIN32
-    char *saveptr;
-#define strtok(buf, chr) strtok_r(buf, chr, &saveptr)
-#endif
-    int deg, dir, min, sec;
-#ifndef NDEBUG
-    int degmax; /* used in asserts only */
-#endif
-    char *ptr, buf[12];
-    memset(buf, 0, sizeof(char) * 12);
-    strncpy(buf, coord, 11);
-    ptr = strtok(buf, ":");
-    if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
-        return -1;
-    deg = atoi(ptr);
-    assert(deg >= 0);
-    ptr = strtok(NULL, ":");
-    if (ptr == NULL)
-        return -1;
-    switch (*ptr) {
-    case 'N':
-    case 'E':
-#ifndef NDEBUG
-        degmax = 90;
-#endif
-        dir = 1;
+    const char* pattern = "%d:%c:%d:%d%c";
+    int i;
+    int deg = 0, min = 0, sec = 0;
+    char sign = 'x', rest = '\0';
+
+    assert(coord);
+    assert(ret);
+
+    if (!*coord)
+        return 1;
+    i = sscanf(coord, pattern, &deg, &sign, &min, &sec, &rest);
+    if (i == EOF || i < 2)
+        return 1;
+    if (rest)
+        return 1;
+    if (sec < 0 || sec > 59 || min < 0 || min > 59)
+        return 1;
+    sign = tolower(sign);
+    switch (sign) {
+    case 'n':
+    case 's':
+        if (deg < 0 || deg > 90)
+            return 1;
         break;
-    case 'S':
-    case 'W':
-#ifndef NDEBUG
-        degmax = 180;
-#endif
-        dir = 0;
+    case 'e':
+    case 'w':
+        if (deg < 0 || deg > 180)
+            return 1;
         break;
     default:
-        return -1;
+        return 1;
     }
-    assert(deg <= degmax);
-    ptr = strtok(NULL, ":");
-    if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
-        return -1;
-    min = atoi(ptr);
-    assert(deg == degmax ? min == 0 : min >= 0 && min <= 59);
-    ptr = strtok(NULL, ":");
-    if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
-        return -1;
-    sec = atoi(ptr);
-    assert(deg == degmax ? sec == 0 : sec >= 0 && sec <= 59);
-    *ret = (double) (dir ?
-        (deg + ((1.0/60) * min) + ((1.0/3600) * sec)) :
-        -(deg + ((1.0/60) * min) + ((1.0/3600) * sec)));
-#ifndef WIN32
-#undef strtok
-#endif
+    switch (sign) {
+    case 'n':
+    case 'e':
+        *ret = deg + ((1.0/60)*min) + ((1.0/3600)*sec);
+        break;
+    default:
+        *ret = -(deg + ((1.0/60)*min) + ((1.0/3600)*sec));
+    }
     return 0;
 }
 
