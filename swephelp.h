@@ -24,6 +24,7 @@
 #include <swephexp.h>
 
 /* swephelp headers */
+#include "swhaspect.h"
 #include "swhdatetime.h"
 #include "swhdef.h"
 #include "swhformat.h"
