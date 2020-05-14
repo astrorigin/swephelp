@@ -115,7 +115,7 @@ int swh_secsearch(
         x = (*f)(t1, fargs, &f1, err);
         if (x)
             return 1;
-    }printf("%u\n", i);
+    }
 
     if (recursive && fabs(step) > PRECISE)
         return swh_secsearch(t1, f, fargs, -step/2, NULL, 0, 1, ret, err);
