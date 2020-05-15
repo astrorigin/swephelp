@@ -59,47 +59,32 @@ int swh_revjul(double jd, int flag, int *dt)
     return 0;
 }
 
-int swh_dt2i(const char *dt, int *ret)
+int swh_dt2i(const char* dt, int* ret)
 {
-    char *ptr, buf[32];
-#ifndef WIN32
-    char *saveptr;
-#define strtok(buf, chr) strtok_r(buf, chr, &saveptr)
-#endif
-    memset(buf, 0, sizeof(char) * 32);
-    strncpy(buf, dt, 31);
-    ptr = strtok(buf, "/");
-    if (ptr == NULL || strspn(ptr, "-0123456789") != strlen(ptr))
-        return -1;
-    ret[0] = atoi(ptr); /* year */
-    ptr = strtok(NULL, "/");
-    if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
-        return -1;
-    ret[1] = atoi(ptr); /* month */
-    assert(ret[1] > 0 && ret[1] < 13);
-    ptr = strtok(NULL, " ");
-    if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
-        return -1;
-    ret[2] = atoi(ptr); /* mday */
-    assert(ret[2] > 0 && ret[2] < 32);
-    ptr = strtok(NULL, ":");
-    if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
-        return -1;
-    ret[3] = atoi(ptr); /* hour */
-    assert(ret[3] > -1 && ret[3] < 24);
-    ptr = strtok(NULL, ":");
-    if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
-        return -1;
-    ret[4] = atoi(ptr); /* minutes */
-    assert(ret[4] > -1 && ret[4] < 60);
-    ptr = strtok(NULL, ":");
-    if (ptr == NULL || strspn(ptr, "0123456789") != strlen(ptr))
-        return -1;
-    ret[5] = atoi(ptr); /* seconds */
-    assert(ret[5] > -1 && ret[5] < 60);
-#ifndef WIN32
-#undef strtok
-#endif
+    const char* pattern = "%d-%d-%d %d:%d:%d%c";
+    int i;
+    int ye = 0, mo = 1, da = 1, ho = 0, mi = 0, se = 0;
+    char rest = '\0';
+
+    assert(dt);
+    assert(ret);
+
+    if (!*dt)
+        return 1;
+    i = sscanf(dt, pattern, &ye, &mo, &da, &ho, &mi, &se, &rest);
+    if (i == EOF || i < 3)
+        return 1;
+    if (rest)
+        return 1;
+    if (mo < 1 || mo > 12 || da < 1 || da > 31
+        || ho < 0 || ho > 23 || mi < 0 || mi > 59 || se < 0 || se > 59)
+        return 1;
+    ret[0] = ye;
+    ret[1] = mo;
+    ret[2] = da;
+    ret[3] = ho;
+    ret[4] = mi;
+    ret[5] = se;
     return 0;
 }
 

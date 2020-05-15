@@ -70,13 +70,15 @@ int swh_revjul(double jd, int flag, int *dt);
 /** @brief Get integers from datetime representation
  *
  * As a habit we keep dates and times in a personal, yet
- * unambiguous format: "{yyyy}/{mm}/{dd} {hh}:{mm}:{ss}".
+ * unambiguous format: "YYYY-mm-dd HH:MM:SS".
+ *
+ * Optionaly, the time part (hour etc) can be omitted.
  *
  * @param coord datetime string
  * @param ret Returned integers declared as int[6]
- * @return 0 on success, or -1 if string is invalid
+ * @return 0 on success, or 1 if string is invalid
  */
-int swh_dt2i(const char *dt, int *ret);
+int swh_dt2i(const char* dt, int* ret);
 
 #ifdef __cplusplus
 } /* extern "C" */
