@@ -238,12 +238,16 @@ int swh_next_aspect_cusp2(
  *
  * @param jd1 First Julian day
  * @param jd2 Second Julian day
- * @param flag Calculation flag
+ * @param flags Calculation flags
  * @param years Result, declared as double
  * @param err Buffer for errors, declared as char[256]
- * @return 0 on success, else -1
+ * @return 0 on success
  */
-int swh_years_diff(double jd1, double jd2, int flag, double *years, char *err);
+int swh_years_diff(double jd1,
+    double jd2,
+    int flags,
+    double* years,
+    char* err);
 
 #ifdef __cplusplus
 } /* extern "C" */

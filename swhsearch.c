@@ -792,39 +792,55 @@ int swh_next_aspect_cusp2(
     return 0;
 }
 
-int swh_years_diff(double jd1, double jd2, int flag, double *years, char *err)
+int swh_years_diff(
+    double jd1,
+    double jd2,
+    int flags,
+    double* years,
+    char* err)
 {
-    double pos1[6], pos2[6], dec;
-    double corr = 2 * ((1.0/86400)/2);
-    int res;
-    res = swe_calc_ut(jd1, SE_SUN, flag, pos1, err);
-    if (res < 0) { return -1; }
-    res = swe_calc_ut(jd2, SE_SUN, flag, pos2, err);
-    if (res < 0) { return -1; }
+    double pos1[6] = {0,0,0,0,0,0};
+    double pos2[6] = {0,0,0,0,0,0};
+    double dec;
+    const double inch = INCH;
+    int x;
+
+    assert(years);
+    assert(err);
+
+    x = swe_calc_ut(jd1, SE_SUN, flags, pos1, err);
+    if (x < 0)
+        return x;
+    x = swe_calc_ut(jd2, SE_SUN, flags, pos2, err);
+    if (x < 0)
+        return x;
     *years = 0;
-    if (jd1 < jd2) /* forward search */
-    {
+
+    if (jd1 < jd2) { /* forward search */
         dec = swe_difdegn(pos2[0], pos1[0]) / 360.0;
-        while (1)
-        {
-            res = swh_next_aspect(SE_SUN, 0, pos1[0], jd1+corr, 0, 0,
-                flag, &jd1, pos2, err);
-            if (res < 0) { return -1; }
-            if (jd1+corr < jd2) { *years += 1; }
-            else { break; }
+        for (;;) {
+            x = swh_next_aspect(SE_SUN, 0, pos1[0], jd1+inch, 0, 0,
+                                flags, &jd1, NULL, err);
+            if (x)
+                return x;
+            if (jd1+inch <= jd2)
+                *years += 1;
+            else
+                break;
         }
         *years += dec;
     }
-    else if (jd1 > jd2) /* backward search */
-    {
+    else if (jd1 > jd2) { /* backwards search */
         dec = swe_difdegn(pos1[0], pos2[0]) / 360.0;
-        while (1)
-        {
-            res = swh_next_aspect(SE_SUN, 0, pos1[0], jd1-corr, 1, 0,
-                flag, &jd1, pos2, err);
-            if (res < 0) { return -1; }
-            if (jd1-corr > jd2) { *years -= 1; }
-            else { break; }
+        for (;;) {
+            x = swh_next_aspect(SE_SUN, 0, pos1[0], jd1-inch, 1, 0,
+                                flags, &jd1, NULL, err);
+            if (x)
+                return x;
+            if (jd1-inch > jd2)
+                *years -= 1;
+            else
+                break;
         }
         *years -= dec;
     }
