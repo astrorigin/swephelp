@@ -28,48 +28,155 @@
 #include "swhgeo.h"
 #include "swhwin.h"
 
+int _swh_geocstrip(const char* coord, char* ret, const size_t maxlen)
+{
+    size_t i = 0;
+    char* p = (char*) coord;
+
+    for (; *p; ++p) {
+        if (++i == maxlen)
+            return 1;
+        switch (*p) {
+        case '\xc2': /* degree sign c2b0 */
+            if (*++p != '\xb0')
+                return 1;
+        case '\'':
+        case '"':
+        case ',':
+        case ':':
+        case '/':
+            *ret++ = ' ';
+            continue;
+        case 'N':
+        case 'S':
+        case 'E':
+        case 'W':
+            *ret++ = tolower(*p);
+            continue;
+        case 'n':
+        case 's':
+        case 'e':
+        case 'w':
+        case '-':
+        case '.':
+        case ' ':
+            *ret++ = *p;
+            continue;
+        default:
+            if (!isdigit(*p))
+                return 1;
+            *ret++ = *p;
+        }
+    }
+    *ret = '\0';
+    return 0;
+}
+
 int swh_geoc2d(const char* coord, double* ret)
 {
-    const char* pattern = "%d:%c:%d:%d%c";
-    int i;
-    int deg = 0, min = 0, sec = 0;
-    char sign = 'x', rest = '\0';
+    int i, ideg, imin;
+    double ddeg, dmin, dsec;
+    char sign, rest;
+    char str[64];
 
     assert(coord);
     assert(ret);
-
     if (!*coord)
         return 1;
-    i = sscanf(coord, pattern, &deg, &sign, &min, &sec, &rest);
-    if (i == EOF || i < 2)
+    /* remove decorations (°'",:/) */
+    if (_swh_geocstrip(coord, str, 64))
         return 1;
-    if (rest)
-        return 1;
-    if (sec < 0 || sec > 59 || min < 0 || min > 59)
-        return 1;
-    sign = tolower(sign);
+    /* longest patterns first */
+    i = sscanf(str, "%d %d %lf %c%c", /* DMSx */
+               &ideg, &imin, &dsec, &sign, &rest);
+    if (i == 4) {
+        *ret = ideg + ((1.0/60)*imin) + ((1.0/3600)*dsec);
+        ddeg = ideg;
+        dmin = imin;
+        goto checksign;
+    }
+    i = sscanf(str, "%d %c %d %lf%c", /* DxMS */
+               &ideg, &sign, &imin, &dsec, &rest);
+    if (i == 4) {
+        *ret = ideg + ((1.0/60)*imin) + ((1.0/3600)*dsec);
+        ddeg = ideg;
+        dmin = imin;
+        goto checksign;
+    }
+    i = sscanf(str, "%d %lf %c%c", /* DMx */
+               &ideg, &dmin, &sign, &rest);
+    if (i == 3) {
+        *ret = ideg + ((1.0/60)*dmin);
+        ddeg = ideg;
+        dsec = 0;
+        goto checksign;
+    }
+    i = sscanf(str, "%d %c %lf%c", /* DxM */
+               &ideg, &sign, &dmin, &rest);
+    if (i == 3) {
+        *ret = ideg + ((1.0/60)*dmin);
+        ddeg = ideg;
+        dsec = 0;
+        goto checksign;
+    }
+    i = sscanf(str, "%d %d %lf%c", /* DMS */
+               &ideg, &imin, &dsec, &rest);
+    if (i == 3) {
+        *ret = ideg + ((1.0/60)*imin) + ((1.0/3600)*dsec);
+        ddeg = ideg;
+        dmin = imin;
+        goto check;
+    }
+    i = sscanf(str, "%lf %c%c", /* Dx */
+               &ddeg, &sign, &rest);
+    if (i == 2) {
+        *ret = ddeg;
+        dmin = 0;
+        dsec = 0;
+        goto checksign;
+    }
+    i = sscanf(str, "%d %lf%c", /* DM */
+               &ideg, &dmin, &rest);
+    if (i == 2) {
+        *ret = ideg + ((1.0/60)*dmin);
+        ddeg = ideg;
+        dsec = 0;
+        goto check;
+    }
+    i = sscanf(str, "%lf%c", /* D */
+               &ddeg, &rest);
+    if (i == 1) {
+        *ret = ddeg;
+        dmin = 0;
+        dsec = 0;
+        goto check;
+    }
+    return 1;
+  checksign:
     switch (sign) {
     case 'n':
     case 's':
-        if (deg < 0 || deg > 90)
-            return 1;
-        break;
-    case 'e':
-    case 'w':
-        if (deg < 0 || deg > 180)
+        if (ddeg < 0 || ddeg > 90)
             return 1;
         break;
     default:
-        return 1;
+        if (ddeg < 0 || ddeg > 180)
+            return 1;
     }
     switch (sign) {
     case 'n':
     case 'e':
-        *ret = deg + ((1.0/60)*min) + ((1.0/3600)*sec);
+        if (*ret < 0)
+            return 1;
         break;
     default:
-        *ret = -(deg + ((1.0/60)*min) + ((1.0/3600)*sec));
+        if (*ret > 0)
+            *ret = -(*ret);
     }
+  check:
+    if (ddeg < -180 || ddeg > 180
+        || dmin < 0 || dmin >= 60 || dsec < 0 || dsec >= 60)
+        return 1;
     return 0;
 }
 

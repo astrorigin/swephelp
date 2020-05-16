@@ -27,11 +27,21 @@ extern "C"
 
 /** @brief Get double from latitude or longitude string
  *
- * Get a double from a longitude or latitude expressed as a string like
- * "{degrees}:{direction}:{minutes}:{seconds}".
- * Directions are given in a single char, 'N' for north, 'S' for south,
- * 'E' for east, 'W' for west.
- * The part after direction (minutes and seconds) can optionaly be omitted.
+ * Possible string formats:
+ *  - DMSx
+ *  - DxMS
+ *  - DMx
+ *  - DxM
+ *  - DMS
+ *  - Dx
+ *  - DM
+ *  - D
+ * Where D is degrees, M is minutes, S is seconds, x is a char in "NSEW"
+ * (direction).
+ * The last number given can be a floating point number.
+ * If no direction is given, a negative degree value is accepted down to -180.
+ * Decorations chars (like °"':/,) can serve as separators and are accepted
+ * anywhere (ignored), as well as spaces.
  *
  * @param coord Latitude or longitude string
  * @param ret Returned double
