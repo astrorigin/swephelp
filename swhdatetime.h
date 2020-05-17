@@ -69,10 +69,15 @@ int swh_revjul(double jd, int flag, int *dt);
 
 /** @brief Get integers from datetime representation
  *
- * As a habit we keep dates and times in a personal, yet
- * unambiguous format: "YYYY-mm-dd HH:MM:SS".
+ * Datetimes are expected to roughly follow the ISO 8601 standard,
+ * 'Year-Month-Day Hour:Minutes:Seconds'.
  *
- * Optionaly, the time part (hour etc) can be omitted.
+ * All non-digits in the given string are ignored and any of them can be
+ * used as separator, including spaces. A minus is evaluated only in
+ * front of the year, as first char of the string.
+ *
+ * Optionaly, the time part (hour etc) can be omitted, in that case will
+ * return zeros.
  *
  * @param coord datetime string
  * @param ret Returned integers declared as int[6]

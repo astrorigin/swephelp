@@ -59,19 +59,44 @@ int swh_revjul(double jd, int flag, int *dt)
     return 0;
 }
 
+int _swh_dtstrip(const char* dt, char* ret, const size_t maxlen)
+{
+    size_t i = 0;
+    char* p = (char*) dt;
+
+    if (*p == '-') {
+        *ret++ = '-';
+        ++p, ++i;
+    }
+    for (; *p; ++p) {
+        if (++i == maxlen)
+            return 1;
+        if (!isdigit(*p)) {
+            *ret++ = ' ';
+            continue;
+        }
+        *ret++ = *p;
+    }
+    *ret = '\0';
+    return 0;
+}
+
 int swh_dt2i(const char* dt, int* ret)
 {
-    const char* pattern = "%d-%d-%d %d:%d:%d%c";
+    const char* pattern = "%d %d %d %d %d %d%c";
     int i;
     int ye = 0, mo = 1, da = 1, ho = 0, mi = 0, se = 0;
     char rest = '\0';
+    char str[64];
 
     assert(dt);
     assert(ret);
 
     if (!*dt)
         return 1;
-    i = sscanf(dt, pattern, &ye, &mo, &da, &ho, &mi, &se, &rest);
+    if (_swh_dtstrip(dt, str, 64))
+        return 1;
+    i = sscanf(str, pattern, &ye, &mo, &da, &ho, &mi, &se, &rest);
     if (i == EOF || i < 3)
         return 1;
     if (rest)
