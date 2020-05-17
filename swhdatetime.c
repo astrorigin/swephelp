@@ -113,4 +113,50 @@ int swh_dt2i(const char* dt, int* ret)
     return 0;
 }
 
+int _swh_tstrip(const char* t, char* ret, const size_t maxlen)
+{
+    size_t i = 0;
+    char* p = (char*) t;
+
+    for (; *p; ++p) {
+        if (++i == maxlen)
+            return 1;
+        if (!isdigit(*p)) {
+            *ret++ = ' ';
+            continue;
+        }
+        *ret++ = *p;
+    }
+    *ret = '\0';
+    return 0;
+}
+
+int swh_t2i(const char* t, int* ret)
+{
+    const char* pattern = "%d %d %d%c";
+    int i;
+    int ho = 0, mi = 0, se = 0;
+    char rest = '\0';
+    char str[32];
+
+    assert(t);
+    assert(ret);
+
+    if (!*t)
+        return 1;
+    if (_swh_tstrip(t, str, 32))
+        return 1;
+    i = sscanf(str, pattern, &ho, &mi, &se, &rest);
+    if (i == EOF || i < 1)
+        return 1;
+    if (rest)
+        return 1;
+    if (ho < 0 || ho > 23 || mi < 0 || mi > 59 || se < 0 || se > 59)
+        return 1;
+    ret[0] = ho;
+    ret[1] = mi;
+    ret[2] = se;
+    return 0;
+}
+
 /* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

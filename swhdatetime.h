@@ -85,6 +85,17 @@ int swh_revjul(double jd, int flag, int *dt);
  */
 int swh_dt2i(const char* dt, int* ret);
 
+/** @bief Get integers from a time representation
+ *
+ * Similar to swh_dt2i, but just for time. Minutes and seconds are optional.
+ *
+ * @see swh_dt2i
+ * @param t Time string
+ * @param Returned integers, declared as int[3]
+ * @return 0 on success, or 1 if string is invalid
+ */
+int swh_t2i(const char* t, int* ret);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
