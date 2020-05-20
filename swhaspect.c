@@ -22,245 +22,148 @@
 
 #include "swhaspect.h"
 
-int swh_match_aspect(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double orb, double *diffret, int *applic, double *factor)
+int swh_match_aspect(
+    double pos0,
+    double speed0,
+    double pos1,
+    double speed1,
+    double aspect,
+    double orb,
+    double* diffret,
+    double* speedret,
+    double* facret)
 {
-    double diff = swe_difdegn(pos0, pos1);
-    aspect = fabs(aspect);
+    const double diff = swe_difdegn(pos1, pos0);
+    aspect = swe_degnorm(aspect);
     orb = fabs(orb);
-    if (diff > aspect)
-    {
-        if (speed1 > speed0) { *applic = -1; }
-        else if (speed1 < speed0) { *applic = 1; }
-        else { *applic = 0; }
-        *diffret = diff-aspect;
-    }
-    else if (diff < aspect)
-    {
-        if (speed1 > speed0) { *applic = 1; }
-        else if (speed1 < speed0) { *applic = -1; }
-        else { *applic = 0; }
-        *diffret = aspect-diff;
-    }
-    else /* aspect is exact, cannot applic */
-    {
-        if (speed1 != speed0) { *applic = 1; }
-        else { *applic = 0; }
+    if (diff == aspect) {
+        *speedret = speed0 > speed1 ? speed0 - speed1 :
+            speed0 < speed1 ? speed1 - speed0 : 0;
         *diffret = 0;
-        *factor = 0;
+        *facret = 0;
         return 0;
     }
-    *factor = *diffret / orb;
-    if (aspect-orb <= diff && diff <= aspect+orb) { return 0; } /* match */
-    else { return -1; } /* no match */
-}
-
-int swh_match_aspect2(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double orb, double *diffret, int *applic, double *factor)
-{
-    double difdeg2n = swe_difdeg2n(pos0, pos1);
-    double diff = fabs(difdeg2n);
-    aspect = fabs(aspect);
-    orb = fabs(orb);
-    if (difdeg2n > 0)
-    {
-        if (diff > aspect)
-        {
-            if (speed1 > speed0) { *applic = -1; }
-            else if (speed1 < speed0) { *applic = 1; }
-            else { *applic = 0; }
-            *diffret = diff-aspect;
-        }
-        else if (diff < aspect)
-        {
-            if (speed1 > speed0) { *applic = 1; }
-            else if (speed1 < speed0) { *applic = -1; }
-            else { *applic = 0; }
-            *diffret = aspect-diff;
-        }
-        else /* aspect exact */
-        {
-            if (speed1 != speed0) { *applic = 1; }
-            else { *applic = 0; }
-            *diffret = 0;
-            *factor = 0;
-            return 0;
-        }
-    }
-    else if (difdeg2n > -180)
-    {
-        if (diff > aspect)
-        {
-            if (speed1 > speed0) { *applic = 1; }
-            else if (speed1 < speed0) { *applic = -1; }
-            else { *applic = 0; }
-            *diffret = diff-aspect;
-        }
-        else if (diff < aspect)
-        {
-            if (speed1 > speed0) { *applic = -1; }
-            else if (speed1 < speed0) { *applic = 1; }
-            else { *applic = 0; }
-            *diffret = aspect-diff;
-        }
-        else /* aspect exact */
-        {
-            if (speed1 != speed0) { *applic = 1; }
-            else { *applic = 0; }
-            *diffret = 0;
-            *factor = 0;
-            return 0;
-        }
-    }
-    else /* exact conjunction or opposition */
-    {
-        if (speed1 != speed0) { *applic = 1; }
-        else { *applic = 0; }
-        *diffret = 0;
-        *factor = 0;
+    *diffret = diff - aspect;
+    *speedret = *diffret > 0 ? speed1 - speed0 : speed0 - speed1;
+    *facret = *diffret / orb;
+    if (aspect - orb <= diff && diff <= aspect + orb)
         return 0;
-    }
-    *factor = *diffret / orb;
-    if (aspect-orb <= diff && diff <= aspect+orb) { return 0; } /* match */
-    else { return -1; } /* no match */
+    return 1;
 }
 
-int swh_match_aspect3(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double app_orb, double sep_orb, double def_orb,
-    double *diffret, int *applic, double *factor)
+int swh_match_aspect2(
+    double pos0,
+    double speed0,
+    double pos1,
+    double speed1,
+    double aspect,
+    double orb,
+    double* diffret,
+    double* speedret,
+    double* facret)
 {
+    int x0, x1;
+    double ret0[3], ret1[3];
+    if (aspect < 0 || aspect > 180)
+        aspect = swe_difdegn(0, aspect);
+    x0 = swh_match_aspect(pos0, speed0, pos1, speed1, aspect, orb,
+                          &ret0[0], &ret0[1], &ret0[2]);
+    if (aspect == 0 || aspect == 180)
+        goto first;
+    x1 = swh_match_aspect(pos0, speed0, pos1, speed1, -(aspect), orb,
+                          &ret1[0], &ret1[1], &ret1[2]);
+    if (fabs(ret1[0]) < fabs(ret0[0]))
+        goto second;
+    else if (fabs(ret0[0]) < fabs(ret1[0]))
+        goto first;
+    else if (ret1[1] < ret0[1])
+        goto second;
+  first:
+    *diffret = ret0[0];
+    *speedret = ret0[1];
+    *facret = ret0[2];
+    return x0;
+  second:
+    *diffret = ret1[0];
+    *speedret = ret1[1];
+    *facret = ret1[2];
+    return x1;
+}
+
+int swh_match_aspect3(
+    double pos0,
+    double speed0,
+    double pos1,
+    double speed1,
+    double aspect,
+    double app_orb,
+    double sep_orb,
+    double def_orb,
+    double* diffret,
+    double* speedret,
+    double* facret)
+{
+    double* orb;
+    const double diff = swe_difdegn(pos1, pos0);
+    aspect = swe_degnorm(aspect);
     app_orb = fabs(app_orb);
     sep_orb = fabs(sep_orb);
     def_orb = fabs(def_orb);
-    if (speed0 == speed1)
-    { /* stable aspect */
-        return swh_match_aspect(pos0, speed0, pos1, speed1, aspect,
-            def_orb, diffret, applic, factor);
+    if (diff == aspect) {
+        *speedret = speed0 > speed1 ? speed0 - speed1 :
+            speed0 < speed1 ? speed1 - speed0 : 0;
+        *diffret = 0;
+        *facret = 0;
+        return 0;
     }
-    if (app_orb == sep_orb)
-    {
-        return swh_match_aspect(pos0, speed0, pos1, speed1, aspect, app_orb,
-            diffret, applic, factor);
-    }
-    if (app_orb > sep_orb)
-    {
-        int i = swh_match_aspect(pos0, speed0, pos1, speed1, aspect, app_orb,
-            diffret, applic, factor);
-        if (i == 0)
-        {
-            if (*applic == -1)
-            {
-                return 0;
-            }
-            else if (*diffret <= sep_orb)
-            {
-                *factor = *diffret / sep_orb;
-                return 0;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-        else
-        {
-            return -1;
-        }
-    }
-    else
-    {
-        int i = swh_match_aspect(pos0, speed0, pos1, speed1, aspect, sep_orb,
-            diffret, applic, factor);
-        if (i == 0)
-        {
-            if (*applic == 1)
-            {
-                return 0;
-            }
-            else if (*diffret <= app_orb)
-            {
-                *factor = *diffret / app_orb;
-                return 0;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-        else
-        {
-            return -1;
-        }
-    }
+    *diffret = diff - aspect;
+    *speedret = *diffret > 0 ? speed1 - speed0 : speed0 - speed1;
+    orb = *speedret < 0 ? &app_orb : *speedret > 0 ? &sep_orb : &def_orb;
+    *facret = *diffret / *orb;
+    if (aspect - *orb <= diff && diff <= aspect + *orb)
+        return 0;
+    return 1;
 }
 
-int swh_match_aspect4(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double app_orb, double sep_orb, double def_orb,
-    double *diffret, int *applic, double *factor)
+int swh_match_aspect4(
+    double pos0,
+    double speed0,
+    double pos1,
+    double speed1,
+    double aspect,
+    double app_orb,
+    double sep_orb,
+    double def_orb,
+    double* diffret,
+    double* speedret,
+    double* facret)
 {
-    app_orb = fabs(app_orb);
-    sep_orb = fabs(sep_orb);
-    def_orb = fabs(def_orb);
-    if (speed0 == speed1)
-    { /* stable aspect */
-        return swh_match_aspect2(pos0, speed0, pos1, speed1, aspect,
-            def_orb, diffret, applic, factor);
-    }
-    if (app_orb == sep_orb)
-    {
-        return swh_match_aspect2(pos0, speed0, pos1, speed1, aspect, app_orb,
-            diffret, applic, factor);
-    }
-    if (app_orb > sep_orb)
-    {
-        int i = swh_match_aspect2(pos0, speed0, pos1, speed1, aspect, app_orb,
-            diffret, applic, factor);
-        if (i == 0)
-        {
-            if (*applic == -1)
-            {
-                return 0;
-            }
-            else if (*diffret <= sep_orb)
-            {
-                *factor = *diffret / sep_orb;
-                return 0;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-        else
-        {
-            return -1;
-        }
-    }
-    else
-    {
-        int i = swh_match_aspect2(pos0, speed0, pos1, speed1, aspect, sep_orb,
-            diffret, applic, factor);
-        if (i == 0)
-        {
-            if (*applic == 1)
-            {
-                return 0;
-            }
-            else if (*diffret <= app_orb)
-            {
-                *factor = *diffret / app_orb;
-                return 0;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-        else
-        {
-            return -1;
-        }
-    }
+    int x0, x1;
+    double ret0[3], ret1[3];
+    if (aspect < 0 || aspect > 180)
+        aspect = swe_difdegn(0, aspect);
+    x0 = swh_match_aspect3(pos0, speed0, pos1, speed1, aspect, app_orb,
+                           sep_orb, def_orb, &ret0[0], &ret0[1], &ret0[2]);
+    if (aspect == 0 || aspect == 180)
+        goto first;
+    x1 = swh_match_aspect3(pos0, speed0, pos1, speed1, -(aspect), app_orb,
+                           sep_orb, def_orb, &ret1[0], &ret1[1], &ret1[2]);
+    if (fabs(ret1[0]) < fabs(ret0[0]))
+        goto second;
+    else if (fabs(ret0[0]) < fabs(ret1[0]))
+        goto first;
+    else if (ret1[1] < ret0[1])
+        goto second;
+  first:
+    *diffret = ret0[0];
+    *speedret = ret0[1];
+    *facret = ret0[2];
+    return x0;
+  second:
+    *diffret = ret1[0];
+    *speedret = ret1[1];
+    *facret = ret1[2];
+    return x1;
 }
 
 /* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

@@ -25,12 +25,17 @@ extern "C"
 {
 #endif
 
-/** @brief Aspect matching
+/** @brief Aspect matching - aspect in range [0;360[
  *
  * Check if the two given positions match the aspect within the given orb.
- * This also calculates the difference between targeted aspect and distance
- * between objects, and if aspect is applicating or separating, or stable due
- * to equal speeds.
+ *
+ * This also calculates the difference between targeted aspect and objects
+ * distance (so that pos0 + asp + diffret = pos2), and its speed (so that
+ * a negative speed indicates an applying aspect). Returned factor simply
+ * is that difference expressed in orb units (so that orb * facret = diffret).
+ *
+ * If you are not interested in that mumbo-jumbo, just set objects speeds to
+ * zero, and consider only the value returned by the function.
  *
  * @param pos0 First object longitude, in degrees [0;360[
  * @param speed0 First object longitude speed, in degrees per day
@@ -39,43 +44,77 @@ extern "C"
  * @param aspect Aspect targeted, in degrees [0;360[
  * @param orb Orb allowed, in degrees
  * @param diffret Difference between aspect and objects distance, in degrees
- * @param applic Aspect applicating [-1], separating [1], or stable [0]
- * @param factor Aspect strength, compared to orb
- * @return 0 if aspect match, else -1
+ * @param speedret Difference speed, in degrees per day
+ * @param facret Difference expressed in orb units
+ * @return 0 if aspect match within orb, else 1
  */
-int swh_match_aspect(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double orb, double *diffret, int *applic, double *factor);
+int swh_match_aspect(
+    double pos0,
+    double speed0,
+    double pos1,
+    double speed1,
+    double aspect,
+    double orb,
+    double* diffret,
+    double* speedret,
+    double* facret);
 
-/** @brief Aspect matching
+/** @brief Aspect matching - aspect in range [0;180]
  *
  * Same as swh_match_aspect, but aspect in [0;180], instead of [0;360[
  *
  * @see swh_match_aspect()
  */
-int swh_match_aspect2(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double orb, double *diffret, int *applic, double *factor);
+int swh_match_aspect2(
+    double pos0,
+    double speed0,
+    double pos1,
+    double speed1,
+    double aspect,
+    double orb,
+    double* diffret,
+    double* speedret,
+    double* facret);
 
-/** @brief Aspect matching
+/** @brief Aspect matching - aspect in range [0;360[ and complex orb
  *
  * Same as swh_match_aspect, but with a different orb in case aspect is
  * applying, separating, or stable.
  *
  * @see swh_match_aspect()
  */
-int swh_match_aspect3(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double app_orb, double sep_orb, double def_orb,
-    double *diffret, int *applic, double *factor);
+int swh_match_aspect3(
+    double pos0,
+    double speed0,
+    double pos1,
+    double speed1,
+    double aspect,
+    double app_orb,
+    double sep_orb,
+    double def_orb,
+    double* diffret,
+    double* speedret,
+    double* facret);
 
-/** @brief Aspect matching
+/** @brief Aspect matching - aspect in range [0;180] and complex orb
  *
  * Same as swh_match_aspect2, but with a different orb in case aspect is
  * applying, separating, or stable.
  *
  * @see swh_match_aspect2()
  */
-int swh_match_aspect4(double pos0, double speed0, double pos1, double speed1,
-    double aspect, double app_orb, double sep_orb, double def_orb,
-    double *diffret, int *applic, double *factor);
+int swh_match_aspect4(
+    double pos0,
+    double speed0,
+    double pos1,
+    double speed1,
+    double aspect,
+    double app_orb,
+    double sep_orb,
+    double def_orb,
+    double* diffret,
+    double* speedret,
+    double* facret);
 
 #ifdef __cplusplus
 } /* extern "C" */
