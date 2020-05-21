@@ -116,6 +116,17 @@ int swh_match_aspect4(
     double* speedret,
     double* facret);
 
+/** @brief Calculate antiscion and contrantiscion
+ *
+ * @param pos Object positions and speeds, as returned by swe_calc functions
+ * @param antisret Returned antiscion positions, declared as double[6]
+ * @param contrantisret Returned contrantiscion positions, declared as double[6]
+ */
+void swh_antiscion(
+    const double pos[6],
+    double antisret[6],
+    double contrantisret[6]);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

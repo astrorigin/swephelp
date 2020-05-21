@@ -17,6 +17,7 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <assert.h>
 #include <math.h>
 #include <swephexp.h>
 
@@ -164,6 +165,28 @@ int swh_match_aspect4(
     *speedret = ret1[1];
     *facret = ret1[2];
     return x1;
+}
+
+void swh_antiscion(
+    const double pos[6],
+    double antisret[6],
+    double contrantisret[6])
+{
+    assert(pos);
+    assert(antisret);
+    assert(contrantisret);
+    antisret[0] = swe_degnorm(90 - swe_difdeg2n(pos[0], 90));
+    antisret[1] = pos[1];
+    antisret[2] = pos[2];
+    antisret[3] = -(pos[3]);
+    antisret[4] = pos[4];
+    antisret[5] = pos[5];
+    contrantisret[0] = swe_degnorm(antisret[0] + 180);
+    contrantisret[1] = -(pos[1]);
+    contrantisret[2] = pos[2];
+    contrantisret[3] = -(pos[3]);
+    contrantisret[4] = -(pos[4]);
+    contrantisret[5] = pos[5];
 }
 
 /* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */
