@@ -5,8 +5,25 @@ project( swephelp )
 
 message( STATUS "-- Configuring swephelp..." )
 
+# Configure sqlite3
+if ( NOT MSVC )
+    find_package( PkgConfig )
+    pkg_check_modules( SQLITE3 sqlite3 )
+    if ( NOT SQLITE3_FOUND )
+        message( STATUS "... Using internal sqlite3" )
+        add_subdirectory( sqlite3 )
+        include_directories( BEFORE sqlite3 )
+    else()
+        include_directories( BEFORE ${SQLITE3_INCLUDE_DIRS} )
+    endif()
+else()
+    add_subdirectory( sqlite3 )
+    include_directories( BEFORE sqlite3 )
+endif()
+
 set( SOURCES
     swhaspect.c
+    swhatlas.c
     swhdatetime.c
     swhformat.c
     swhgeo.c
@@ -17,6 +34,7 @@ set( SOURCES
 set( HEADERS
     swephelp.h
     swhaspect.h
+    swhatlas.h
     swhdatetime.h
     swhdef.h
     swhformat.h

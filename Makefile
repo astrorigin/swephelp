@@ -8,6 +8,7 @@ SWEDIR = /usr/local/opt/swisseph
 
 SWHINC = swephelp.h \
 	swhaspect.h \
+	swhatlas.h \
 	swhdatetime.h \
 	swhdef.h \
 	swhformat.h \
@@ -18,6 +19,7 @@ SWHINC = swephelp.h \
 	swhwin.h
 
 SWHOBJ = swhaspect.o \
+	swhatlas.o \
 	swhdatetime.o \
 	swhformat.o \
 	swhgeo.o \
@@ -37,7 +39,7 @@ libswephelp.so: $(SWHOBJ)
 	$(CC) -shared -o $@ $(SWHOBJ)
 
 test: test.o libswephelp.a
-	$(CC) $(CFLAGS) -o $@ $< -L. -lswephelp -L$(SWEDIR) -lswe -lm -ldl
+	$(CC) $(CFLAGS) -o $@ $< -L. -lswephelp -L$(SWEDIR) -lswe -lm -ldl -lsqlite3
 
 .PHONY: all clean
 
@@ -47,6 +49,7 @@ clean:
 	rm -f *.o libswephelp.* test
 
 swhaspect.o: swhaspect.h
+swhatlas.o: swhatlas.h
 swhdatetime.o: swhdatetime.h swhwin.h
 swhformat.o: swhformat.h
 swhgeo.o: swhgeo.h swhwin.h
