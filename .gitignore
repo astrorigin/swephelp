@@ -1,12 +1,11 @@
 # swephelp .gitignore
 
-/build*
-/test*
-
-*~
 *.a
 *.bak
 *.o
 *.orig
 *.so
+*~
 
+/build*
+/test*
