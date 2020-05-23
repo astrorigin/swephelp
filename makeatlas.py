@@ -12,6 +12,9 @@ Works best on linuxes, for now.
 # where everything happens (empty writable directory)
 _workdir = '/tmp'
 
+# minimum population of cities
+_minpop = 500
+
 # country codes
 # this list must be up to date with geonames ftp
 allcodes = [
@@ -501,7 +504,7 @@ class GeoName(object):
             for l in lines:
                 name = GeoName(l)
                 if name.feature_class == 'P':
-                    if name.population != '' and int(name.population) >= 1000:
+                    if name.population != '' and int(name.population) >= _minpop:
                         ret.append(name)
         else:
             for l in lines:
