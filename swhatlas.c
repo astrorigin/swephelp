@@ -139,16 +139,20 @@ int swh_atlas_search(
     if (strlen(ctry) == 2) {
         ctry[0] = toupper(ctry[0]);
         ctry[1] = toupper(ctry[1]);
-        p = "SELECT A.* FROM GeoNames as A, CountryInfo AS B"
-            " WHERE B.iso = '%s' AND B.iso = A.country_code AND"
+        p = "SELECT A.name, A.asciiname, A.alternatenames, B.iso, A.latitude,"
+            " A.longitude, A.elevation, C.timezoneid"
+            " FROM GeoNames as A, CountryInfo AS B, Timezones AS C"
+            " WHERE B.iso = '%s' AND B._idx = A.country AND"
             " (A.name LIKE '%s' OR A.asciiname LIKE '%s' OR A.alternatenames"
-            " LIKE '%s') ORDER BY A.name;";
+            " LIKE '%s') AND A.timezone = C._idx ORDER BY A.name;";
     }
     else {
         ctry[x++] = '%';
         ctry[x] = '\0';
-        p = "SELECT A.* FROM GeoNames as A, CountryInfo AS B"
-            " WHERE B.country LIKE '%s' AND B.iso = A.country_code AND"
+        p = "SELECT A.name, A.asciiname, A.alternatenames, B.iso, A.latitude,"
+            " A.longitude, A.elevation, C.timezoneid"
+            " FROM GeoNames as A, CountryInfo AS B, Timezones AS C"
+            " WHERE B.country LIKE '%s' AND B._idx = A.country AND"
             " (A.name LIKE '%s' OR A.asciiname LIKE '%s' OR A.alternatenames"
             " LIKE '%s') ORDER BY A.name;";
     }
