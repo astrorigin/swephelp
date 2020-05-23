@@ -275,12 +275,11 @@ from sqlite3 import dbapi2 as sqlite
 
 # Timezones
 
-# timezoneid is not unique
 tzschema = """
 CREATE TABLE Timezones
 (
     _idx integer primary key,
-    timezoneid varchar not null,
+    timezoneid varchar not null unique,
     gmtoffset numeric not null,
     dstoffset numeric not null,
     rawoffset numeric not null
@@ -291,10 +290,11 @@ class TimeZone(object):
     def __init__(self, line):
         line = line.split('\t')
         #print(line)
-        self.timezoneid = line[0]
-        self.gmtoffset = line[1]
-        self.dstoffset = line[2]
-        self.rawoffset = line[3]
+        self.countrycode = line[0]
+        self.timezoneid = line[1]
+        self.gmtoffset = line[2]
+        self.dstoffset = line[3]
+        self.rawoffset = line[4]
     def insert(self, cur):
         print("... timezone [%s]" % self.timezoneid)
         sql = """INSERT INTO Timezones (timezoneid, gmtoffset, dstoffset,
@@ -306,20 +306,29 @@ class TimeZone(object):
             print('ERR='+self.timezoneid)
             raise
     @staticmethod
+    def insertDummy(cur):
+        print('... insert empty timezone')
+        sql = """INSERT INTO Timezones (timezoneid, gmtoffset, dstoffset,
+            rawoffset) VALUES ('?', 0, 0, 0);"""
+        cur.execute(sql)
+    @staticmethod
     def downloadFile():
         url = 'http://download.geonames.org/export/dump/timeZones.txt'
         if not os.path.exists('in/timeZones.txt'):
-            os.system('cd in && wget %s' % url)
+            os.system('cd in && wget %s && rm -f _timeZones.txt' % url)
+        # sort file
+        if not os.path.exists('in/_timeZones.txt'):
+            os.system('cd in && tail -n +2 timeZones.txt | sort -uk 2 > _timeZones.txt')
     @staticmethod
     def parseFile():
-        f = open('in/timeZones.txt', 'r')
+        f = open('in/_timeZones.txt', 'r')
         lines = f.read()
         f.close()
         lines = lines.split('\n')
-        lines = lines[1:-1]
         ret = []
         for line in lines:
-            ret.append(TimeZone(line))
+            if line != '':
+                ret.append(TimeZone(line))
         return ret
 
 # countries
@@ -412,25 +421,28 @@ citiesschema = """
 CREATE TABLE GeoNames
 (
     _idx integer primary key,
-    geonameid integer,
-    name varchar,
-    asciiname varchar,
-    alternatenames varchar,
-    latitude numeric,
-    longitude numeric,
-    feature_class varchar,
-    feature_code varchar,
-    country_code varchar,
-    cc2 varchar,
-    admin1_code varchar,
-    admin2_code varchar,
-    admin3_code varchar,
-    admin4_code varchar,
-    population integer,
-    elevation integer,
-    dem integer,
-    timezone varchar,
-    modification_date varchar
+    geonameid integer default NULL,
+    name varchar not null,
+    asciiname varchar not null,
+    alternatenames varchar not null,
+    latitude numeric not null,
+    longitude numeric not null,
+    --feature_class varchar,
+    --feature_code varchar,
+    country integer not null,
+    --cc2 varchar,
+    --admin1_code varchar,
+    --admin2_code varchar,
+    --admin3_code varchar,
+    --admin4_code varchar,
+    --population integer,
+    elevation integer default NULL,
+    --dem integer,
+    timezone integer not null,
+    --modification_date varchar
+
+    foreign key (country) references CountryInfo(_idx),
+    foreign key (timezone) references Timezones(_idx)
 );
 """
 
@@ -456,19 +468,20 @@ class GeoName(object):
         self.elevation = words[15]
         self.dem = words[16]
         self.timezone = words[17]
+        if self.timezone == '': self.timezone = '?'
         self.modification_date = words[18]
     def insert(self, cur):
         #print(self.name)
         sql = """INSERT INTO GeoNames (geonameid,name,asciiname,alternatenames,
-            latitude,longitude,feature_class,feature_code,country_code,cc2,
-            admin1_code,admin2_code,admin3_code,admin4_code,population,
-            elevation,dem,timezone,modification_date)
-            VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? );"""
-        cur.execute(sql, (self.geonameid,self.name,self.asciiname,self.alternatenames,
-            self.latitude,self.longitude,self.feature_class,self.feature_code,
-            self.country_code,self.cc2,self.admin1_code,self.admin2_code,
-            self.admin3_code,self.admin4_code,self.population,self.elevation,
-            self.dem,self.timezone,self.modification_date))
+            latitude,longitude,country,elevation,timezone)
+            VALUES ( ?,?,?,?,?,?,(SELECT _idx FROM CountryInfo WHERE iso = ?),
+            ?,(SELECT _idx FROM Timezones WHERE timezoneid = ?));"""
+        try: cur.execute(sql, (self.geonameid,self.name,self.asciiname,
+            self.alternatenames,self.latitude,self.longitude,self.country_code,
+            self.elevation,self.timezone))
+        except sqlite.IntegrityError:
+            print('(%s)' % self.timezone)
+            raise
     @staticmethod
     def downloadFile(ctycode):
         if not os.path.exists('in/%s.txt' % ctycode):
@@ -488,7 +501,8 @@ class GeoName(object):
             for l in lines:
                 name = GeoName(l)
                 if name.feature_class == 'P':
-                    ret.append(name)
+                    if name.population != '' and int(name.population) >= 1000:
+                        ret.append(name)
         else:
             for l in lines:
                 ret.append(GeoName(l))
@@ -513,6 +527,7 @@ def makeTimeZones(cur):
     print('... making timezones table')
     TimeZone.downloadFile()
     cur.execute(tzschema)
+    TimeZone.insertDummy(cur)
     zones = TimeZone.parseFile()
     cur.execute('begin;')
     for z in zones:
@@ -538,20 +553,6 @@ def makeCountry(cur, ctycode):
         l.insert(cur)
     cur.execute('end;')
 
-def createIndexes(cur):
-    #print('# Creating name index...')
-    #sql = "CREATE INDEX GeoName_index_name ON GeoNames ( name );"
-    #cur.execute( sql )
-    #print('# Creating asciiname index...')
-    #sql = "CREATE INDEX GeoName_index_asciiname ON GeoNames ( asciiname );"
-    #cur.execute( sql )
-    #print('# Creating alternatenames index...')
-    #sql = "CREATE INDEX GeoName_index_alternatenames ON GeoNames ( alternatenames );"
-    #cur.execute( sql )
-    #print('# Creating country_code index...')
-    #sql = "CREATE INDEX GeoName_index_country_code ON GeoNames ( country_code );"
-    #cur.execute( sql )
-
 def main():
     os.chdir(_workdir)
     if not os.path.exists('in'):
@@ -569,7 +570,6 @@ def main():
     for code in allcodes:
         makeCountry(cur, code)
         #os.system('rm -f in/%s.txt' % code)
-    #createIndexes( cur )
     #tot = 0
     #print('... counting:')
     #for code in allcodes:
