@@ -159,4 +159,19 @@ int swh_t2i(const char* t, int* ret)
     return 0;
 }
 
+void swh_jduration(
+    double jdstart,
+    double jdend,
+    int ret[4])
+{
+    double span = fabs(jdend - jdstart);
+    ret[0] = (int) floor(span);
+    span -= ret[0];
+    ret[1] = (int) floor(span * 24.0);
+    span -= ret[1] * (1/24.0);
+    ret[2] = (int) floor(span * 1440.0);
+    span -=  ret[2] * (1/1440.0);
+    ret[3] = (int) floor(span * 86400.0);
+}
+
 /* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

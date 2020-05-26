@@ -96,6 +96,17 @@ int swh_dt2i(const char* dt, int* ret);
  */
 int swh_t2i(const char* t, int* ret);
 
+/** @brief Get integers representing a duration between JD numbers
+ *
+ * @param jdstart Lowest JD number
+ * @param jdend Highest JD number
+ * @param ret Returned integers, declared as int[4] (days, hours, min, sec)
+ */
+void swh_jduration(
+    double jdstart,
+    double jdend,
+    int ret[4]);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
