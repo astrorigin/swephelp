@@ -164,7 +164,7 @@ void swh_jduration(
     double jdend,
     int ret[4])
 {
-    double span = fabs(jdend - jdstart);
+    double span = jdend >= jdstart ? jdend - jdstart : jdstart - jdend;
     ret[0] = (int) floor(span);
     span -= ret[0];
     ret[1] = (int) floor(span * 24.0);
