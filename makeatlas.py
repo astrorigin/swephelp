@@ -13,7 +13,16 @@ Works best on linuxes, for now.
 _workdir = '/tmp'
 
 # minimum population of cities
-_minpop = 500
+#
+# some stats as of 2020-05-23:
+# 1000+ => ~15M     ~114'345 cities
+# 500+  => ~19M     ~156'260 cities
+# 250+  => ~23M     ~203'733 cities
+# 100+  => ~27M     ~262'684 cities
+# 50+   => ~30M     ~298'839 cities
+# 1+    => ~40M     ~423'935 cities
+# 0+    => ~379M    ~4'769'603 cities
+_minpop = 1
 
 # country codes
 # this list must be up to date with geonames ftp
@@ -340,25 +349,25 @@ ctyschema = """
 CREATE TABLE CountryInfo
 (
     _idx integer primary key,
-    iso varchar unique,
-    iso3 varchar,
-    iso_numeric integer,
-    fips varchar,
-    country varchar,
-    capital varchar,
-    area varchar,
-    population varchar,
-    continent varchar,
-    tld varchar,
-    currencycode varchar,
-    currencyname varchar,
-    phone varchar,
-    postalcodeformat varchar,
-    postalcoderegex varchar,
-    languages varchar,
-    geonameid integer,
-    neighbours varchar,
-    equivalentfipscode varchar
+    iso varchar not null unique,
+    iso3 varchar not null,
+    iso_numeric integer not null,
+    fips varchar not null,
+    country varchar not null,
+    capital varchar not null,
+    area varchar not null,
+    population varchar not null,
+    continent varchar not null,
+    tld varchar not null,
+    currencycode varchar not null,
+    currencyname varchar not null,
+    phone varchar not null,
+    postalcodeformat varchar not null,
+    postalcoderegex varchar not null,
+    languages varchar not null,
+    geonameid integer not null,
+    neighbours varchar not null,
+    equivalentfipscode varchar not null
 );
 """
 
@@ -386,14 +395,17 @@ class CountryInfo(object):
         self.equivalentfipscode = words[18]
     def insert(self, cur):
         print("... country [%s]" % self.iso)
-        sql = '''INSERT INTO CountryInfo ( iso, iso3, iso_numeric, fips, country,
-            capital, area, population, continent, tld, currencycode, currencyname,
-            phone, postalcodeformat, postalcoderegex, languages, geonameid,
-            neighbours, equivalentfipscode ) VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? );'''
-        cur.execute(sql, (self.iso, self.iso3, self.iso_numeric, self.fips, self.country,
-            self.capital, self.area, self.population, self.continent, self.tld, self.currencycode,
-            self.currencyname, self.phone, self.postalcodeformat, self.postalcoderegex,
-            self.languages, self.geonameid, self.neighbours, self.equivalentfipscode))
+        sql = '''INSERT INTO CountryInfo (iso, iso3, iso_numeric, fips,
+            country, capital, area, population, continent, tld, currencycode,
+            currencyname, phone, postalcodeformat, postalcoderegex, languages,
+            geonameid, neighbours, equivalentfipscode)
+            VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? );'''
+        cur.execute(sql, (self.iso, self.iso3, self.iso_numeric, self.fips,
+            self.country, self.capital, self.area, self.population,
+            self.continent, self.tld, self.currencycode, self.currencyname,
+            self.phone, self.postalcodeformat, self.postalcoderegex,
+            self.languages, self.geonameid, self.neighbours,
+            self.equivalentfipscode))
     @staticmethod
     def downloadFile():
         url = 'http://download.geonames.org/export/dump/countryInfo.txt'
@@ -424,7 +436,7 @@ citiesschema = """
 CREATE TABLE GeoNames
 (
     _idx integer primary key,
-    geonameid integer default NULL,
+    geonameid integer default null,
     name varchar not null,
     asciiname varchar not null,
     alternatenames varchar not null,
@@ -439,7 +451,7 @@ CREATE TABLE GeoNames
     --admin3_code varchar,
     --admin4_code varchar,
     --population integer,
-    elevation integer default NULL,
+    elevation integer not null default 0,
     --dem integer,
     timezone integer not null,
     --modification_date varchar
@@ -475,15 +487,15 @@ class GeoName(object):
         self.modification_date = words[18]
     def insert(self, cur):
         #print(self.name)
-        sql = """INSERT INTO GeoNames (geonameid,name,asciiname,alternatenames,
-            latitude,longitude,country,elevation,timezone)
+        sql = """INSERT INTO GeoNames (geonameid, name, asciiname,
+            alternatenames, latitude, longitude, country, elevation, timezone)
             VALUES ( ?,?,?,?,?,?,(SELECT _idx FROM CountryInfo WHERE iso = ?),
             ?,(SELECT _idx FROM Timezones WHERE timezoneid = ?));"""
-        try: cur.execute(sql, (self.geonameid,self.name,self.asciiname,
-            self.alternatenames,self.latitude,self.longitude,self.country_code,
-            self.elevation,self.timezone))
+        try: cur.execute(sql, (self.geonameid, self.name, self.asciiname,
+            self.alternatenames, self.latitude, self.longitude,
+            self.country_code, self.elevation, self.timezone))
         except sqlite.IntegrityError:
-            print('(%s)' % self.timezone)
+            #print('ERR=(%s)' % self.timezone)
             raise
     @staticmethod
     def downloadFile(ctycode):
@@ -504,16 +516,17 @@ class GeoName(object):
             for l in lines:
                 name = GeoName(l)
                 if name.feature_class == 'P':
-                    if name.population != '' and int(name.population) >= _minpop:
+                    if name.population and int(name.population) >= _minpop:
                         ret.append(name)
         else:
             for l in lines:
                 ret.append(GeoName(l))
         return ret
     @staticmethod
-    def count(cur, code):
+    def count(cur, code=None):
         if code:
-            sql = "SELECT count(_idx) FROM GeoNames WHERE country_code = ?;"
+            sql = """SELECT count(A._idx) FROM GeoNames as A, CountryInfo as B
+                WHERE B.iso = ? AND A.country = B._idx;"""
             cur.execute(sql, (code,))
         else:
             sql = "SELECT count(_idx) FROM GeoNames;"
