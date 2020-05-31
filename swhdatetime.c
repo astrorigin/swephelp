@@ -32,16 +32,18 @@
 double swh_jdnow(void)
 {
     time_t t = time(NULL);
-#ifdef WIN32 /* has not gmtime_r ? */
-    struct tm *tmp = gmtime(&t);
-    return swe_julday(tmp->tm_year+1900, tmp->tm_mon+1, tmp->tm_mday,
-        (tmp->tm_hour+(tmp->tm_min/60.0)+(tmp->tm_sec/3600.0)), SE_GREG_CAL);
-#else
     struct tm tmp;
+#ifdef WIN32
+    errno_t e = gmtime_s(&tmp, &t);
+    if (e) {
+        fprintf(stderr, "swh_jdnow: gmtime_s: errno (%d)\n", e);
+        return 0;
+    }
+#else
     gmtime_r(&t, &tmp);
+#endif
     return swe_julday(tmp.tm_year+1900, tmp.tm_mon+1, tmp.tm_mday,
         (tmp.tm_hour+(tmp.tm_min/60.0)+(tmp.tm_sec/3600.0)), SE_GREG_CAL);
-#endif
 }
 
 int swh_revjul(double jd, int flag, int *dt)
