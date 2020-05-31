@@ -33,6 +33,7 @@
 #include "swhmisc.h"
 #include "swhraman.h"
 #include "swhsearch.h"
+#include "swhtimezone.h"
 
 #endif /* SWEPHELP_H */
 /* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */

@@ -29,7 +29,8 @@ set( SOURCES
     swhgeo.c
     swhmisc.c
     swhraman.c
-    swhsearch.c )
+    swhsearch.c
+    swhtimezone.c )
 
 set( HEADERS
     swephelp.h
@@ -42,6 +43,7 @@ set( HEADERS
     swhmisc.h
     swhraman.h
     swhsearch.h
+    swhtimezone.h
     swhwin.h )
 
 include_directories( BEFORE .

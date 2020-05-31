@@ -16,6 +16,7 @@ SWHINC = swephelp.h \
 	swhmisc.h \
 	swhraman.h \
 	swhsearch.h \
+	swhtimezone.h \
 	swhwin.h
 
 SWHOBJ = swhaspect.o \
@@ -25,7 +26,8 @@ SWHOBJ = swhaspect.o \
 	swhgeo.o \
 	swhmisc.o \
 	swhraman.o \
-	swhsearch.o
+	swhsearch.o \
+	swhtimezone.o
 
 .DEFAULT_GOAL := all
 
@@ -56,5 +58,6 @@ swhgeo.o: swhgeo.h swhwin.h
 swhmisc.o: swhmisc.h
 swhraman.o: swhdef.h swhraman.h
 swhsearch.o: swhsearch.h
+swhtimezone.o: swhtimezone.h
 
 # vi: sw=4 ts=4 noet
