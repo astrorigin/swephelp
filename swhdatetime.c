@@ -46,7 +46,7 @@ double swh_jdnow(void)
         (tmp.tm_hour+(tmp.tm_min/60.0)+(tmp.tm_sec/3600.0)), SE_GREG_CAL);
 }
 
-int swh_revjul(double jd, int flag, int *dt)
+int swh_revjul(double jd, int flag, int dt[6])
 {
     double t;
     assert(flag == SE_GREG_CAL || flag == SE_JUL_CAL);
@@ -83,7 +83,7 @@ int _swh_dtstrip(const char* dt, char* ret, const size_t maxlen)
     return 0;
 }
 
-int swh_dt2i(const char* dt, int* ret)
+int swh_dt2i(const char* dt, int ret[6])
 {
     const char* pattern = "%d %d %d %d %d %d%c";
     int i;
@@ -133,7 +133,7 @@ int _swh_tstrip(const char* t, char* ret, const size_t maxlen)
     return 0;
 }
 
-int swh_t2i(const char* t, int* ret)
+int swh_t2i(const char* t, int ret[3])
 {
     const char* pattern = "%d %d %d%c";
     int i;

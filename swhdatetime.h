@@ -65,7 +65,7 @@ double swh_jdnow(void);
  * @param dt Results, declared as int[6] (year, month, day, hour, min, sec)
  * @return 0
  */
-int swh_revjul(double jd, int flag, int *dt);
+int swh_revjul(double jd, int flag, int dt[6]);
 
 /** @brief Get integers from datetime representation
  *
@@ -83,7 +83,7 @@ int swh_revjul(double jd, int flag, int *dt);
  * @param ret Returned integers declared as int[6]
  * @return 0 on success, or 1 if string is invalid
  */
-int swh_dt2i(const char* dt, int* ret);
+int swh_dt2i(const char* dt, int ret[6]);
 
 /** @bief Get integers from a time representation
  *
@@ -94,7 +94,7 @@ int swh_dt2i(const char* dt, int* ret);
  * @param Returned integers, declared as int[3]
  * @return 0 on success, or 1 if string is invalid
  */
-int swh_t2i(const char* t, int* ret);
+int swh_t2i(const char* t, int ret[3]);
 
 /** @brief Get integers representing a duration between JD numbers
  *
