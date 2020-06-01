@@ -107,6 +107,15 @@ void swh_jduration(
     double jdend,
     int ret[4]);
 
+/** @brief Get an (iso 8601-style) string from given JD
+ *
+ * @param jd Julian day (ut)
+ * @param cal SE_GREG_CAL or SE_JUL_CAL
+ * @param ret Returned string, declared as char[64]
+ * @return 0, or 1 on error
+ */
+int swh_jd2isostr(double jd, int cal, char ret[64]);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

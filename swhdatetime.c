@@ -176,4 +176,25 @@ void swh_jduration(
     ret[3] = (int) floor(span * 86400.0);
 }
 
+int swh_jd2isostr(double jd, int cal, char ret[64])
+{
+    const char* fmt = "%Y-%m-%d %H:%M:%S UTC";
+    struct tm tmp;
+    int dt[6];
+
+    assert(cal == SE_GREG_CAL || cal == SE_JUL_CAL);
+
+    if (swh_revjul(jd, cal, dt))
+        return 1;
+    tmp.tm_year = dt[0] - 1900;
+    tmp.tm_mon = dt[1];
+    tmp.tm_mday = dt[2];
+    tmp.tm_hour = dt[3];
+    tmp.tm_min = dt[4];
+    tmp.tm_sec = dt[5];
+    if (!strftime(ret, 64, fmt, &tmp))
+        return 1;
+    return 0;
+}
+
 /* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */
