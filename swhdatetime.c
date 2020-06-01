@@ -187,7 +187,7 @@ int swh_jd2isostr(double jd, int cal, char ret[64])
     if (swh_revjul(jd, cal, dt))
         return 1;
     tmp.tm_year = dt[0] - 1900;
-    tmp.tm_mon = dt[1];
+    tmp.tm_mon = dt[1] - 1;
     tmp.tm_mday = dt[2];
     tmp.tm_hour = dt[3];
     tmp.tm_min = dt[4];
