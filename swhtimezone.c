@@ -184,7 +184,7 @@ const struct swh_tzabbr swh_tzabbrlist[SWH_TZABBR_NUM+1] =
 {"PST", "Pacific Standard Time (North America)", "UTC−08", -8, 0}, /* dupl */
 {"PST", "Philippine Standard Time", "UTC+08", 8, 0}, /* dupl */
 {"PYST", "Paraguay Summer Time", "UTC−03", -3, 0},
-{"PYT", "Paraguay Time[11]", "UTC−04", -4, 0},
+{"PYT", "Paraguay Time", "UTC−04", -4, 0},
 {"RET", "Réunion Time", "UTC+04", 4, 0},
 {"ROTT", "Rothera Research Station Time", "UTC−03", -3, 0},
 {"SAKT", "Sakhalin Island Time", "UTC+11", 11, 0},
@@ -227,8 +227,8 @@ const struct swh_tzabbr swh_tzabbrlist[SWH_TZABBR_NUM+1] =
 {"WEST", "Western European Summer Time", "UTC+01", 1, 0},
 {"WET", "Western European Time", "UTC±00", 0, 0},
 {"WIT", "Western Indonesian Time", "UTC+07", 7, 0},
-{"WGST", "West Greenland Summer Time[13]", "UTC−02", -2, 0},
-{"WGT", "West Greenland Time[14]", "UTC−03", -3, 0},
+{"WGST", "West Greenland Summer Time", "UTC−02", -2, 0},
+{"WGT", "West Greenland Time", "UTC−03", -3, 0},
 {"WST", "Western Standard Time", "UTC+08", 8, 0},
 {"YAKT", "Yakutsk Time", "UTC+09", 9, 0},
 {"YEKT", "Yekaterinburg Time", "UTC+05", 5, 0},
