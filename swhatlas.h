@@ -27,10 +27,10 @@ extern "C"
 
 /** @brief Connect to atlas database
  *
- * Pass the path to the sqlite database to connect. Pass NULL or an empty
- * string to have the environment variable SWH_ATLAS_PATH checked instead.
+ * The environment variable SWH_ATLAS_PATH is checked for a valid string,
+ * and will override the path argument given.
  *
- * @param path Path to database file, or NULL if set in environment
+ * @param path Path to database file, can be NULL if set in environment
  * @return 0, or 1 on error
  */
 int swh_atlas_connect(const char* path);

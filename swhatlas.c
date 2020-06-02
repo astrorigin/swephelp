@@ -39,17 +39,16 @@ int swh_atlas_connect(const char* path)
 {
     int x;
     char p[512];
+    char* env = NULL;
 
     if (_swh_atlas_cnx && swh_atlas_close())
         return 1;
-    if (!path || !*path) {
-        char* env = NULL;
-        if (!(env = getenv("SWH_ATLAS_PATH")) || !*env)
-            return 1;
+    if ((env = getenv("SWH_ATLAS_PATH")) && *env)
         x = snprintf(p, 512, "file:%s?mode=ro", env);
-    }
-    else
+    else if (path && *path)
         x = snprintf(p, 512, "file:%s?mode=ro", path);
+    else
+        return 1;
     if (x < 0)
         return 1;
     x = sqlite3_open(p, &_swh_atlas_cnx);
