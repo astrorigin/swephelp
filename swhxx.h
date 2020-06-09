@@ -1,4 +1,5 @@
 /*
+
     Swephelp
 
     Copyright 2007-2020 Stanislas Marquis <stan@astrorigin.com>
@@ -17,32 +18,21 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SWEPHELP_H
-#define SWEPHELP_H
-
-/* include swisseph functions */
-#include <swephexp.h>
-
-/* swephelp headers */
-#include "swhaspect.h"
-#include "swhatlas.h"
-#include "swhdatetime.h"
-#include "swhdb.h"
-#include "swhdef.h"
-#include "swhformat.h"
-#include "swhgeo.h"
-#include "swhmisc.h"
-#include "swhraman.h"
-#include "swhsearch.h"
-#include "swhtimezone.h"
+#ifndef SWHXX_H
+#define SWHXX_H
 
 #ifdef __cplusplus
-#include "swhdbxx.hpp"
-#include "swhxx.hpp"
-#else
-#include "swhdbxx.h"
-#include "swhxx.h"
+extern "C"
+{
 #endif
 
-#endif /* SWEPHELP_H */
-/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */
+const char* swhxx_get_error(void* o);
+
+void swhxx_clear_error(void* o);
+
+#ifdef __cplusplus
+} /* end extern "C" */
+#endif
+
+#endif /* SWHXX_H */
+/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 */

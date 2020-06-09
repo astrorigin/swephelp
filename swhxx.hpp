@@ -1,4 +1,5 @@
 /*
+
     Swephelp
 
     Copyright 2007-2020 Stanislas Marquis <stan@astrorigin.com>
@@ -17,32 +18,42 @@
     along with Swephelp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SWEPHELP_H
-#define SWEPHELP_H
+#ifndef SWHXX_HPP
+#define SWHXX_HPP
 
-/* include swisseph functions */
-#include <swephexp.h>
+#include <string>
 
-/* swephelp headers */
-#include "swhaspect.h"
-#include "swhatlas.h"
-#include "swhdatetime.h"
-#include "swhdb.h"
-#include "swhdef.h"
-#include "swhformat.h"
-#include "swhgeo.h"
-#include "swhmisc.h"
-#include "swhraman.h"
-#include "swhsearch.h"
-#include "swhtimezone.h"
+using namespace std;
 
-#ifdef __cplusplus
-#include "swhdbxx.hpp"
-#include "swhxx.hpp"
-#else
-#include "swhdbxx.h"
-#include "swhxx.h"
-#endif
+namespace swh {
 
-#endif /* SWEPHELP_H */
-/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 : */
+class ErrorBase
+{
+public:
+
+    ErrorBase();
+
+    ~ErrorBase();
+
+    const char* error() const;
+
+    void error(const char* s);
+
+    void errorFormat(const char* fmt, ...);
+
+    bool hasError() const;
+
+    void clearError();
+
+private:
+
+    string* m_error;
+};
+
+string replaceAll(string str, const string& from, const string& to);
+
+} // end namespace swh
+
+#endif // SWHXX_HPP
+
+/* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 */
