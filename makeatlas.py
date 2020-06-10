@@ -292,9 +292,9 @@ CREATE TABLE Timezones
 (
     _idx integer primary key,
     timezoneid varchar not null unique,
-    gmtoffset numeric not null,
-    dstoffset numeric not null,
-    rawoffset numeric not null
+    gmtoffset real not null,
+    dstoffset real not null,
+    rawoffset real not null
 );
 """
 
@@ -355,8 +355,8 @@ CREATE TABLE CountryInfo
     fips varchar not null,
     country varchar not null,
     capital varchar not null,
-    area varchar not null,
-    population varchar not null,
+    area integer not null,
+    population integer not null,
     continent varchar not null,
     tld varchar not null,
     currencycode varchar not null,
@@ -440,8 +440,8 @@ CREATE TABLE GeoNames
     name varchar not null,
     asciiname varchar not null,
     alternatenames varchar not null,
-    latitude numeric not null,
-    longitude numeric not null,
+    latitude real not null,
+    longitude real not null,
     --feature_class varchar,
     --feature_code varchar,
     country integer not null,
