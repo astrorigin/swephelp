@@ -169,13 +169,14 @@ int swh_match_aspect4(
 
 void swh_antiscion(
     const double pos[6],
+    const double axis,
     double antisret[6],
     double contrantisret[6])
 {
     assert(pos);
     assert(antisret);
     assert(contrantisret);
-    antisret[0] = swe_degnorm(90 - swe_difdeg2n(pos[0], 90));
+    antisret[0] = swe_degnorm(axis - swe_difdeg2n(pos[0], axis));
     antisret[1] = pos[1];
     antisret[2] = pos[2];
     antisret[3] = -(pos[3]);

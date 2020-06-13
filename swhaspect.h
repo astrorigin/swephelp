@@ -119,11 +119,13 @@ int swh_match_aspect4(
 /** @brief Calculate antiscion and contrantiscion
  *
  * @param pos Object positions and speeds, as returned by swe_calc functions
+ * @param axis Degree of axis, eg. 90 for 0° cancer-capricorn
  * @param antisret Returned antiscion positions, declared as double[6]
  * @param contrantisret Returned contrantiscion positions, declared as double[6]
  */
 void swh_antiscion(
     const double pos[6],
+    const double axis,
     double antisret[6],
     double contrantisret[6]);
 
