@@ -57,11 +57,13 @@ public:
     const char* info() const;
     int info(const char* s);
 
-    int drop(char err[512]);
+    int drop();
 
-    int save(char err[512]);
+    int save();
 
     static int root(User** p, char err[512]);
+
+    static int select(int uidx, User** p, char err[512]);
 
     static int select(const char* name, User** p, char err[512]);
 
@@ -90,6 +92,7 @@ public:
         int alt=0,
         const char* datetime="",
         const char* timezone="",
+        int isdst=-1,
         const char* location="",
         const char* country="");
 
@@ -120,11 +123,16 @@ public:
     const char* timezone() const;
     int timezone(const char* s);
 
+    int isdst() const;
+    int isdst(int i);
+
     const char* location() const;
     int location(const char* s);
 
     const char* country() const;
     int country(const char* s);
+
+    int owner(swh::db::User** p, char err[512]) const;
 
 protected:
 
@@ -137,6 +145,7 @@ protected:
     int     m_alt;
     string  m_datetime;
     string  m_timezone;
+    int     m_isdst;
     string  m_location;
     string  m_country;
 };

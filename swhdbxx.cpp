@@ -175,21 +175,25 @@ int swhxx_db_user_set_info(void* o, const char* s)
     return ((swh::db::User*)o)->info(s);
 }
 
-int swh::db::User::drop(char err[512])
+int swh::db::User::drop()
 {
-    if (!m_idx) {
+    if (!m_idx || m_idx == 1) {
         errorFormat("cant drop user (%s)", m_name.c_str());
-        return 1;
+        return 1; // key error
     }
+    char err[512];
     string sql = "delete from Users where _idx = " + to_string(m_idx) + ";";
-    if (swh_db_exec(sql.c_str(), NULL, NULL, err))
-        return 2;
+    if (swh_db_exec(sql.c_str(), NULL, NULL, err)) {
+        error(err);
+        return 2; // sql error
+    }
+    m_idx = 0;
     return 0;
 }
 
-int swhxx_db_user_drop(void* o, char err[512])
+int swhxx_db_user_drop(void* o)
 {
-    return ((swh::db::User*)o)->drop(err);
+    return ((swh::db::User*)o)->drop();
 }
 
 int _swhxx_db_user_save_cb(void* arg, int argc, char** argv, char** cols)
@@ -198,8 +202,9 @@ int _swhxx_db_user_save_cb(void* arg, int argc, char** argv, char** cols)
     return 0;
 }
 
-int swh::db::User::save(char err[512])
+int swh::db::User::save()
 {
+    char err[512];
     string sql;
     sql.reserve(512);
     string name = swh::replaceAll(m_name, "'", "''");
@@ -209,27 +214,33 @@ int swh::db::User::save(char err[512])
     if (!m_idx) {
         sql = "insert into Users (name, pswd, mail, info) values ('"
             + name + "', '" + pswd + "', '" + mail + "', '" + info + "');";
-        if (swh_db_exec(sql.c_str(), NULL, NULL, err))
-            return 1;
+        if (swh_db_exec(sql.c_str(), NULL, NULL, err)) {
+            error(err);
+            return 1; // key error
+        }
     }
     else {
         sql = "update Users set name = '" + name + "', pswd = '" + pswd
             + "', mail = '" + mail + "', info = '" + info + "' where _idx = "
             + to_string(m_idx) + ";";
-        if (swh_db_exec(sql.c_str(), NULL, NULL, err))
-            return 2;
+        if (swh_db_exec(sql.c_str(), NULL, NULL, err)) {
+            error(err);
+            return 2; // bad state
+        }
     }
     if (!m_idx) {
         sql = "select _idx from Users where name = '" + name + "';";
-        if (swh_db_exec(sql.c_str(), &_swhxx_db_user_save_cb, &m_idx, err))
-            return 2;
+        if (swh_db_exec(sql.c_str(), &_swhxx_db_user_save_cb, &m_idx, err)) {
+            error(err);
+            return 2; // sql error
+        }
     }
     return 0;
 }
 
-int swhxx_db_user_save(void* o, char err[512])
+int swhxx_db_user_save(void* o)
 {
-    return ((swh::db::User*)o)->save(err);
+    return ((swh::db::User*)o)->save();
 }
 
 int _swhxx_db_user_cb(void* arg, int argc, char** argv, char** cols)
@@ -242,11 +253,7 @@ int _swhxx_db_user_cb(void* arg, int argc, char** argv, char** cols)
 
 int swh::db::User::root(swh::db::User** p, char err[512])
 {
-    const char* sql = "select * from Users where _idx = 1;";
-    *p = NULL;
-    if (swh_db_exec(sql, &_swhxx_db_user_cb, p, err))
-        return 1;
-    return 0;
+    return select(1, p, err);
 }
 
 int swhxx_db_user_root(void** o, char err[512])
@@ -254,17 +261,35 @@ int swhxx_db_user_root(void** o, char err[512])
     return swh::db::User::root((swh::db::User**) o, err);
 }
 
+int swh::db::User::select(int uidx, swh::db::User** p, char err[512])
+{
+    *p = NULL;
+    if (uidx < 1) {
+        snprintf(err, 512, "invalid idx (%d)", uidx);
+        return 1; // key error
+    }
+    string sql = "select * from Users where _idx = " + to_string(uidx) + ";";
+    if (swh_db_exec(sql.c_str(), &_swhxx_db_user_cb, p, err))
+        return 2; // sql error
+    return 0;
+}
+
+int swhxx_db_user_select_idx(int uidx, void** o, char err[512])
+{
+    return swh::db::User::select(uidx, (swh::db::User**) o, err);
+}
+
 int swh::db::User::select(const char* name, swh::db::User** p, char err[512])
 {
+    *p = NULL;
     if (!name || !*name || strlen(name) > 255) {
         snprintf(err, 512, "invalid name (%s)", name);
-        return 1;
+        return 1; // key error
     }
     string nam = swh::replaceAll(name, "'", "''");
     string sql = "select * from Users where name = '" + nam + "';";
-    *p = NULL;
     if (swh_db_exec(sql.c_str(), &_swhxx_db_user_cb, p, err))
-        return 1;
+        return 2; // sql error
     return 0;
 }
 
@@ -283,6 +308,7 @@ swh::db::Data::Data(
     int alt,
     const char* datetime,
     const char* timezone,
+    int isdst,
     const char* location,
     const char* country)
     :
@@ -295,6 +321,7 @@ swh::db::Data::Data(
     m_alt(alt),
     m_datetime(datetime),
     m_timezone(timezone),
+    m_isdst(isdst),
     m_location(location),
     m_country(country)
 {
@@ -532,6 +559,31 @@ int swhxx_db_data_set_timezone(void* o, const char* tz)
     return ((swh::db::Data*)o)->timezone(tz);
 }
 
+int swh::db::Data::isdst() const
+{
+    return m_isdst;
+}
+
+int swhxx_db_data_get_isdst(void* o)
+{
+    return ((swh::db::Data*)o)->isdst();
+}
+
+int swh::db::Data::isdst(int i)
+{
+    if (i < -1 || i > 1) {
+        errorFormat("invalid isdst (%d)", i);
+        return 1;
+    }
+    m_isdst = i;
+    return 0;
+}
+
+int swhxx_db_data_set_isdst(void* o, int i)
+{
+    return ((swh::db::Data*)o)->isdst(i);
+}
+
 const char* swh::db::Data::location() const
 {
     return m_location.c_str();
@@ -580,6 +632,16 @@ int swh::db::Data::country(const char* s)
 int swhxx_db_data_set_country(void* o, const char* cty)
 {
     return ((swh::db::Data*)o)->country(cty);
+}
+
+int swh::db::Data::owner(swh::db::User** p, char err[512]) const
+{
+    return swh::db::User::select(m_uidx, p, err);
+}
+
+int swhxx_db_data_owner(void* o, void** p, char err[512])
+{
+    return ((swh::db::Data*)o)->owner((swh::db::User**) p, err);
 }
 
 /* vi: set fenc=utf-8 ff=unix et sw=4 ts=4 */

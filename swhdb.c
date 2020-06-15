@@ -64,6 +64,7 @@ const char* _swh_db_creates_sql[] = {
 " alt integer not null default 0 check (alt between -10000 and 20000),"
 " datetime varchar default '',"
 " timezone varchar default '',"
+" isdst integer default -1,"
 " location varchar default '',"
 " country varchar default '',"
 " foreign key (_uidx) references Users(_idx)"

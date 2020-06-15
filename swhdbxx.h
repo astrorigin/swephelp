@@ -48,15 +48,17 @@ const char* swhxx_db_user_get_info(void* o);
 
 int swhxx_db_user_set_info(void* o, const char* s);
 
-int swhxx_db_user_drop(void* o, char err[512]);
+int swhxx_db_user_drop(void* o);
 
 int _swhxx_db_user_save_cb(void* arg, int argc, char** argv, char** cols);
 
-int swhxx_db_user_save(void* o, char err[512]);
+int swhxx_db_user_save(void* o);
 
 int _swhxx_db_user_cb(void* arg, int argc, char** argv, char** cols);
 
 int swhxx_db_user_root(void** o, char err[512]);
+
+int swhxx_db_user_select_idx(int uidx, void** o, char err[512]);
 
 int swhxx_db_user_select(const char* name, void** o, char err[512]);
 
@@ -100,6 +102,10 @@ const char* swhxx_db_data_get_timezone(void* o);
 
 int swhxx_db_data_set_timezone(void* o, const char* tz);
 
+int swhxx_db_data_get_isdst(void* o);
+
+int swhxx_db_data_set_isdst(void* o, int i);
+
 const char* swhxx_db_data_get_location(void* o);
 
 int swhxx_db_data_set_location(void* o, const char* loc);
@@ -108,6 +114,7 @@ const char* swhxx_db_data_get_country(void* o);
 
 int swhxx_db_data_set_country(void* o, const char* cty);
 
+int swhxx_db_data_owner(void* o, void** p, char err[512]);
 
 #ifdef __cplusplus
 } /* extern "C" */
