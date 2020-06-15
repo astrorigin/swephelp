@@ -21,7 +21,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#include <io.h>
+#define access _access
+#define F_OK 00
+#define R_OK 04
+#define W_OK 02
+#endif
 
 #include <sqlite3.h>
 
