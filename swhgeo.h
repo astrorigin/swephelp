@@ -41,7 +41,8 @@ extern "C"
  * The last number given can be a floating point number.
  * If no direction is given, a negative degree value is accepted down to -180.
  * Decorations chars (like °"':/,) can serve as separators and are accepted
- * anywhere (ignored), as well as spaces.
+ * anywhere (ignored), as well as spaces. Dots (points) are not separators
+ * but used for floating points numbers.
  *
  * @param coord Latitude or longitude string
  * @param ret Returned double

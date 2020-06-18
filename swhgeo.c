@@ -49,13 +49,18 @@ int _swh_geocstrip(const char* coord, char* ret, const size_t maxlen)
             continue;
         case 'N':
         case 'S':
-        case 'E':
         case 'W':
             *ret++ = tolower(*p);
             continue;
+        case 'E':
+        case 'e':
+            if (++i == maxlen)
+                return 1;
+            *ret++ = ' ';
+            *ret++ = 'e';
+            continue;
         case 'n':
         case 's':
-        case 'e':
         case 'w':
         case '-':
         case '.':
