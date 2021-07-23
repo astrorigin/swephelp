@@ -6,7 +6,18 @@ project( swephelp )
 
 message( STATUS "-- Configuring swephelp..." )
 
-# Configure sqlite3
+# Configure swisseph
+if ( WIN32 )
+    set( LIBSWE_INCLUDE_PATH
+        "C:\\swisseph"
+        CACHE STRING "Path to swisseph header files" )
+else()
+    set( LIBSWE_INCLUDE_PATH
+        "/usr/local/include/swisseph"
+        CACHE STRING "Path to swisseph header files" )
+endif()
+
+# Find sqlite3
 if ( NOT MSVC )
     find_package( PkgConfig )
     pkg_check_modules( SQLITE3 sqlite3 )
@@ -65,10 +76,7 @@ set( HEADERS
     swhxx.hpp )
 
 include_directories( BEFORE .
-    /usr/include
-    /usr/include/swisseph
-    /usr/local/include
-    /usr/local/include/swisseph )
+    ${LIBSWE_INCLUDE_PATH} )
 
 if ( MSVC )
     add_definitions( -D_CRT_SECURE_NO_WARNINGS )
