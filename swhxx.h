@@ -26,6 +26,8 @@ extern "C"
 {
 #endif
 
+int swhxx_has_error(void* o);
+
 const char* swhxx_get_error(void* o);
 
 void swhxx_clear_error(void* o);

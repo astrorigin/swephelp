@@ -43,10 +43,11 @@ int swh_atlas_connect(const char* path)
 
     if (_swh_atlas_cnx && swh_atlas_close())
         return 1;
+    memset(p, 0, 512);
     if ((env = getenv("SWH_ATLAS_PATH")) && *env)
-        x = snprintf(p, 512, "file:%s?mode=ro", env);
+        x = snprintf(p, 511, "file:%s?mode=ro", env);
     else if (path && *path)
-        x = snprintf(p, 512, "file:%s?mode=ro", path);
+        x = snprintf(p, 511, "file:%s?mode=ro", path);
     else
         return 1;
     if (x < 0)
@@ -79,17 +80,18 @@ int swh_atlas_countries_list(
     assert(callback);
     assert(err);
     if (!_swh_atlas_cnx) {
-        snprintf(err, 512, "not connected");
+        strcpy(err, "not connected");
         return 1;
     }
     x = sqlite3_exec(_swh_atlas_cnx, sql, callback, arg, &e);
     if (x != SQLITE_OK) {
+        memset(err, 0, 512);
         if (e) {
-            snprintf(err, 512, "%s", e);
+            snprintf(err, 511, "%s", e);
             sqlite3_free(e);
         }
         else
-            snprintf(err, 512, "error (%d)", x);
+            snprintf(err, 511, "error (%d)", x);
         return 1;
     }
     return 0;
@@ -113,15 +115,15 @@ int swh_atlas_search(
     assert(callback);
     assert(err);
     if (!_swh_atlas_cnx) {
-        snprintf(err, 512, "not connected");
+        strcpy(err, "not connected");
         return 1;
     }
     if (!location || !*location) {
-        snprintf(err, 512, "missing argument: location");
+        strcpy(err, "missing argument: location");
         return 1;
     }
     if (!country || strlen(country) < 2) {
-        snprintf(err, 512, "missing argument: country");
+        strcpy(err, "missing argument: country");
         return 1;
     }
     loc[x++] = '%';
@@ -155,19 +157,21 @@ int swh_atlas_search(
             " (A.name LIKE '%s' OR A.asciiname LIKE '%s' OR A.alternatenames"
             " LIKE '%s') ORDER BY A.name;";
     }
-    x = snprintf(sql, 800, p, ctry, loc, loc, loc);
+    memset(sql, 0, 800);
+    x = snprintf(sql, 799, p, ctry, loc, loc, loc);
     if (x < 0) {
-        snprintf(err, 512, "io error");
+        strcpy(err, "io error");
         return 1;
     }
     x = sqlite3_exec(_swh_atlas_cnx, sql, callback, arg, &e);
     if (x != SQLITE_OK) {
+        memset(err, 0, 512);
         if (e) {
-            snprintf(err, 512, "%s", e);
+            snprintf(err, 511, "%s", e);
             sqlite3_free(e);
         }
         else
-            snprintf(err, 512, "error (%d)", x);
+            snprintf(err, 511, "error (%d)", x);
         return 1;
     }
     return 0;

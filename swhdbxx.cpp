@@ -19,29 +19,26 @@
 
 #include <cstring>
 
+#include <sqlite3.h>
+
 #include "swhdbxx.h"
 #include "swhdbxx.hpp"
 
 #include "swhdb.h"
 
-swh::db::User::User(
-    int idx,
-    const char* name,
-    const char* pswd,
-    const char* mail,
-    const char* info)
+swh::db::User::User()
     :
-    m_idx(idx),
-    m_name(name),
-    m_pswd(pswd),
-    m_mail(mail),
-    m_info(info)
+    m_idx(0),
+    m_name("?"),
+    m_pswd(""),
+    m_mail(""),
+    m_info("")
 {
 }
 
 void swhxx_db_user_new(void** o)
 {
-    *o = new swh::db::User();
+    *o = new (std::nothrow) swh::db::User();
 }
 
 void swhxx_db_user_dealloc(void** o)
@@ -50,27 +47,23 @@ void swhxx_db_user_dealloc(void** o)
     *o = NULL;
 }
 
-int swh::db::User::idx() const
+unsigned long swh::db::User::idx() const
 {
     return m_idx;
 }
 
-int swhxx_db_user_get_idx(void* o)
+unsigned long swhxx_db_user_get_idx(void* o)
 {
     return ((swh::db::User*)o)->idx();
 }
 
-int swh::db::User::idx(int x)
+int swh::db::User::idx(unsigned long x)
 {
-    if (x < 0) {
-        errorFormat("invalid idx (%d)", x);
-        return 1;
-    }
     m_idx = x;
     return 0;
 }
 
-int swhxx_db_user_set_idx(void* o, int x)
+int swhxx_db_user_set_idx(void* o, unsigned long x)
 {
     return ((swh::db::User*)o)->idx(x);
 }
@@ -85,9 +78,16 @@ const char* swhxx_db_user_get_name(void* o)
     return ((swh::db::User*)o)->name();
 }
 
+bool swh::db::User::nameIsValid(const char* s)
+{
+    if (!s || !*s || strlen(s) > 128)
+        return false;
+    return true;
+}
+
 int swh::db::User::name(const char* s)
 {
-    if (!s || !*s || strlen(s) > 255) {
+    if (!nameIsValid(s)) {
         errorFormat("invalid name (%s)", s);
         return 1;
     }
@@ -110,10 +110,17 @@ const char* swhxx_db_user_get_pswd(void* o)
     return ((swh::db::User*)o)->pswd();
 }
 
+bool swh::db::User::pswdIsValid(const char* s)
+{
+    if (!s)
+        return false;
+    return true;
+}
+
 int swh::db::User::pswd(const char* s)
 {
-    if (!s) {
-        error("invalid pswd (NULL)");
+    if (!pswdIsValid(s)) {
+        error("invalid pswd");
         return 1;
     }
     m_pswd = s;
@@ -135,10 +142,17 @@ const char* swhxx_db_user_get_mail(void* o)
     return ((swh::db::User*)o)->mail();
 }
 
+bool swh::db::User::mailIsValid(const char* s)
+{
+    if (!s) // better todo
+        return false;
+    return true;
+}
+
 int swh::db::User::mail(const char* s)
 {
-    if (!s) {
-        error("invalid mail (NULL)");
+    if (!mailIsValid(s)) {
+        errorFormat("invalid mail (%s)", s);
         return 1;
     }
     m_mail = s;
@@ -160,10 +174,17 @@ const char* swhxx_db_user_get_info(void* o)
     return ((swh::db::User*)o)->info();
 }
 
+bool swh::db::User::infoIsValid(const char* s)
+{
+    if (!s)
+        return false;
+    return true;
+}
+
 int swh::db::User::info(const char* s)
 {
-    if (!s) {
-        error("invalid info (NULL)");
+    if (!infoIsValid(s)) {
+        errorFormat("invalid info (%s)", s);
         return 1;
     }
     m_info = s;
@@ -177,8 +198,8 @@ int swhxx_db_user_set_info(void* o, const char* s)
 
 int swh::db::User::drop()
 {
-    if (!m_idx || m_idx == 1) {
-        errorFormat("cant drop user (%s)", m_name.c_str());
+    if (m_idx < 2) {
+        errorFormat("cant drop user (%s) (%lu)", m_name.c_str(), m_idx);
         return 1; // key error
     }
     char err[512];
@@ -198,7 +219,7 @@ int swhxx_db_user_drop(void* o)
 
 int _swhxx_db_user_save_cb(void* arg, int argc, char** argv, char** cols)
 {
-    *(int*)arg = atoi(argv[0]);
+    *(unsigned long*)arg = strtoul(argv[0], NULL, 10);
     return 0;
 }
 
@@ -212,27 +233,32 @@ int swh::db::User::save()
     string mail = swh::replaceAll(m_mail, "'", "''");
     string info = swh::replaceAll(m_info, "'", "''");
     if (!m_idx) {
+        // save
         sql = "insert into Users (name, pswd, mail, info) values ('"
             + name + "', '" + pswd + "', '" + mail + "', '" + info + "');";
         if (swh_db_exec(sql.c_str(), NULL, NULL, err)) {
             error(err);
-            return 1; // key error
+            return 1; // key error (duplicate key)
+        }
+        // retrieve idx
+        sql = "select _idx from Users where name = '" + name + "';";
+        if (swh_db_exec(sql.c_str(), &_swhxx_db_user_save_cb, &m_idx, err)) {
+            error(err);
+            return 2; // sql error?
+        }
+        if (!m_idx) {
+            errorFormat("cant retrieve idx of user (%s)", m_name);
+            return 2; // wut?
         }
     }
     else {
+        // update
         sql = "update Users set name = '" + name + "', pswd = '" + pswd
             + "', mail = '" + mail + "', info = '" + info + "' where _idx = "
             + to_string(m_idx) + ";";
         if (swh_db_exec(sql.c_str(), NULL, NULL, err)) {
             error(err);
-            return 2; // bad state
-        }
-    }
-    if (!m_idx) {
-        sql = "select _idx from Users where name = '" + name + "';";
-        if (swh_db_exec(sql.c_str(), &_swhxx_db_user_save_cb, &m_idx, err)) {
-            error(err);
-            return 2; // sql error
+            return 2; // wut?
         }
     }
     return 0;
@@ -245,9 +271,16 @@ int swhxx_db_user_save(void* o)
 
 int _swhxx_db_user_cb(void* arg, int argc, char** argv, char** cols)
 {
-    swh::db::User* u = new swh::db::User(atoi(argv[0]), argv[1], argv[2],
-                                         argv[3], argv[4]);
+    swh::db::User* u = new (std::nothrow) swh::db::User();
+    if (!u)
+        return 1;
     *(swh::db::User**)arg = u;
+    if (u->idx(strtoul(argv[0], NULL, 10))
+        || u->name(argv[1])
+        || u->pswd(argv[2])
+        || u->mail(argv[3])
+        || u->info(argv[4]))
+        return 1;
     return 0;
 }
 
@@ -261,35 +294,50 @@ int swhxx_db_user_root(void** o, char err[512])
     return swh::db::User::root((swh::db::User**) o, err);
 }
 
-int swh::db::User::select(int uidx, swh::db::User** p, char err[512])
+int swh::db::User::select(unsigned long uidx, swh::db::User** p, char err[512])
 {
+    int i;
     *p = NULL;
-    if (uidx < 1) {
-        snprintf(err, 512, "invalid idx (%d)", uidx);
+    if (!uidx) {
+        memset(err, 0, 512);
+        snprintf(err, 511, "invalid idx (%lu)", uidx);
         return 1; // key error
     }
     string sql = "select * from Users where _idx = " + to_string(uidx) + ";";
-    if (swh_db_exec(sql.c_str(), &_swhxx_db_user_cb, p, err))
+    if ((i = swh_db_exec(sql.c_str(), &_swhxx_db_user_cb, p, err))) {
+        if (i == SQLITE_ABORT) {
+            if (!p)
+                return 4; // nomem
+            return 3; // db corruption
+        }
         return 2; // sql error
+    }
     return 0;
 }
 
-int swhxx_db_user_select_idx(int uidx, void** o, char err[512])
+int swhxx_db_user_select_idx(unsigned long uidx, void** o, char err[512])
 {
     return swh::db::User::select(uidx, (swh::db::User**) o, err);
 }
 
 int swh::db::User::select(const char* name, swh::db::User** p, char err[512])
 {
+    int i;
     *p = NULL;
-    if (!name || !*name || strlen(name) > 255) {
+    if (!nameIsValid(name)) {
         snprintf(err, 512, "invalid name (%s)", name);
         return 1; // key error
     }
     string nam = swh::replaceAll(name, "'", "''");
     string sql = "select * from Users where name = '" + nam + "';";
-    if (swh_db_exec(sql.c_str(), &_swhxx_db_user_cb, p, err))
+    if ((i = swh_db_exec(sql.c_str(), &_swhxx_db_user_cb, p, err))) {
+        if (i == SQLITE_ABORT) {
+            if (!p)
+                return 4; // nomem
+            return 3; // db corruption
+        }
         return 2; // sql error
+    }
     return 0;
 }
 
@@ -298,38 +346,26 @@ int swhxx_db_user_select(const char* name, void** o, char err[512])
     return swh::db::User::select(name, (swh::db::User**) o, err);
 }
 
-swh::db::Data::Data(
-    int idx,
-    int uidx,
-    const char* title,
-    double jd,
-    double lat,
-    double lon,
-    int alt,
-    const char* datetime,
-    const char* timezone,
-    int isdst,
-    const char* location,
-    const char* country)
+swh::db::Data::Data()
     :
-    m_idx(idx),
-    m_uidx(uidx),
-    m_title(title),
-    m_jd(jd),
-    m_lat(lat),
-    m_lon(lon),
-    m_alt(alt),
-    m_datetime(datetime),
-    m_timezone(timezone),
-    m_isdst(isdst),
-    m_location(location),
-    m_country(country)
+    m_idx(0),
+    m_useridx(1),
+    m_title("?"),
+    m_jd(0),
+    m_latitude(0),
+    m_longitude(0),
+    m_altitude(0),
+    m_datetime(""),
+    m_timezone(""),
+    m_isdst(-1),
+    m_location(""),
+    m_country("")
 {
 }
 
 void swhxx_db_data_new(void** o)
 {
-    *o = new swh::db::Data();
+    *o = new (std::nothrow) swh::db::Data();
 }
 
 void swhxx_db_data_dealloc(void** o)
@@ -338,54 +374,46 @@ void swhxx_db_data_dealloc(void** o)
     *o = NULL;
 }
 
-int swh::db::Data::idx() const
+unsigned long swh::db::Data::idx() const
 {
     return m_idx;
 }
 
-int swhxx_db_data_get_idx(void* o)
+unsigned long swhxx_db_data_get_idx(void* o)
 {
     return ((swh::db::Data*)o)->idx();
 }
 
-int swh::db::Data::idx(int x)
+int swh::db::Data::idx(unsigned long x)
 {
-    if (x < 0) {
-        errorFormat("invalid idx (%d)", x);
-        return 1;
-    }
     m_idx = x;
     return 0;
 }
 
-int swhxx_db_data_set_idx(void* o, int x)
+int swhxx_db_data_set_idx(void* o, unsigned long x)
 {
     return ((swh::db::Data*)o)->idx(x);
 }
 
-int swh::db::Data::uidx() const
+unsigned long swh::db::Data::useridx() const
 {
-    return m_uidx;
+    return m_useridx;
 }
 
-int swhxx_db_data_get_uidx(void* o)
+unsigned long swhxx_db_data_get_useridx(void* o)
 {
-    return ((swh::db::Data*)o)->uidx();
+    return ((swh::db::Data*)o)->useridx();
 }
 
-int swh::db::Data::uidx(int x)
+int swh::db::Data::useridx(unsigned long x)
 {
-    if (x < 0) {
-        errorFormat("invalid uidx (%d)", x);
-        return 1;
-    }
-    m_uidx = x;
+    m_useridx = x;
     return 0;
 }
 
-int swhxx_db_data_set_uidx(void* o, int x)
+int swhxx_db_data_set_useridx(void* o, unsigned long x)
 {
-    return ((swh::db::Data*)o)->uidx(x);
+    return ((swh::db::Data*)o)->useridx(x);
 }
 
 const char* swh::db::Data::title() const
@@ -434,79 +462,79 @@ int swhxx_db_data_set_jd(void* o, double jd)
     return ((swh::db::Data*)o)->jd(jd);
 }
 
-double swh::db::Data::lat() const
+double swh::db::Data::latitude() const
 {
-    return m_lat;
+    return m_latitude;
 }
 
-double swhxx_db_data_get_lat(void* o)
+double swhxx_db_data_get_latitude(void* o)
 {
-    return ((swh::db::Data*)o)->lat();
+    return ((swh::db::Data*)o)->latitude();
 }
 
-int swh::db::Data::lat(double d)
+int swh::db::Data::latitude(double d)
 {
     if (d < -90 || d > 90) {
-        errorFormat("invalid lat (%f)", d);
+        errorFormat("invalid latitude (%f)", d);
         return 1;
     }
-    m_lat = d;
+    m_latitude = d;
     return 0;
 }
 
-int swhxx_db_data_set_lat(void* o, double lat)
+int swhxx_db_data_set_latitude(void* o, double lat)
 {
-    return ((swh::db::Data*)o)->lat(lat);
+    return ((swh::db::Data*)o)->latitude(lat);
 }
 
-double swh::db::Data::lon() const
+double swh::db::Data::longitude() const
 {
-    return m_lon;
+    return m_longitude;
 }
 
-double swhxx_db_data_get_lon(void* o)
+double swhxx_db_data_get_longitude(void* o)
 {
-    return ((swh::db::Data*)o)->lon();
+    return ((swh::db::Data*)o)->longitude();
 }
 
-int swh::db::Data::lon(double d)
+int swh::db::Data::longitude(double d)
 {
     if (d < -180 || d > 180) {
-        errorFormat("invalid lon (%f)", d);
+        errorFormat("invalid longitude (%f)", d);
         return 1;
     }
-    m_lon = d;
+    m_longitude = d;
     return 0;
 }
 
-int swhxx_db_data_set_lon(void* o, double lon)
+int swhxx_db_data_set_longitude(void* o, double lon)
 {
-    return ((swh::db::Data*)o)->lon(lon);
+    return ((swh::db::Data*)o)->longitude(lon);
 }
 
-int swh::db::Data::alt() const
+long swh::db::Data::altitude() const
 {
-    return m_alt;
+    return m_altitude;
 }
 
-int swhxx_db_data_get_alt(void* o)
+long swhxx_db_data_get_altitude(void* o)
 {
-    return ((swh::db::Data*)o)->alt();
+    return ((swh::db::Data*)o)->altitude();
 }
 
-int swh::db::Data::alt(int i)
+int swh::db::Data::altitude(long i)
 {
     if (i < -10000 || i > 20000) {
-        errorFormat("invalid alt (%d)", i);
+        errorFormat("invalid altitude (%ld)", i);
         return 1;
     }
-    m_alt = i;
+    m_altitude = i;
     return 0;
 }
 
-int swhxx_db_data_set_alt(void* o, int alt)
+int swhxx_db_data_set_altitude(void* o, long alt)
 {
-    return ((swh::db::Data*)o)->alt(alt);
+    return ((swh::db::Data*)o)->altitude(alt);
 }
 
 const char* swh::db::Data::datetime() const
@@ -559,27 +587,27 @@ int swhxx_db_data_set_timezone(void* o, const char* tz)
     return ((swh::db::Data*)o)->timezone(tz);
 }
 
-int swh::db::Data::isdst() const
+long swh::db::Data::isdst() const
 {
     return m_isdst;
 }
 
-int swhxx_db_data_get_isdst(void* o)
+long swhxx_db_data_get_isdst(void* o)
 {
     return ((swh::db::Data*)o)->isdst();
 }
 
-int swh::db::Data::isdst(int i)
+int swh::db::Data::isdst(long i)
 {
     if (i < -1 || i > 1) {
-        errorFormat("invalid isdst (%d)", i);
+        errorFormat("invalid isdst (%ld)", i);
         return 1;
     }
     m_isdst = i;
     return 0;
 }
 
-int swhxx_db_data_set_isdst(void* o, int i)
+int swhxx_db_data_set_isdst(void* o, long i)
 {
     return ((swh::db::Data*)o)->isdst(i);
 }
@@ -636,7 +664,7 @@ int swhxx_db_data_set_country(void* o, const char* cty)
 
 int swh::db::Data::owner(swh::db::User** p, char err[512]) const
 {
-    return swh::db::User::select(m_uidx, p, err);
+    return swh::db::User::select(m_useridx, p, err);
 }
 
 int swhxx_db_data_owner(void* o, void** p, char err[512])

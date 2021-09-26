@@ -7,14 +7,16 @@ project( swephelp )
 message( STATUS "-- Configuring swephelp..." )
 
 # Configure swisseph
-if ( WIN32 )
-    set( LIBSWE_INCLUDE_PATH
-        "C:\\swisseph"
-        CACHE STRING "Path to swisseph header files" )
-else()
-    set( LIBSWE_INCLUDE_PATH
-        "/usr/local/include/swisseph"
-        CACHE STRING "Path to swisseph header files" )
+if ( NOT LIBSWE_INCLUDE_PATH )
+    if ( WIN32 )
+        set( LIBSWE_INCLUDE_PATH
+            "C:\\swisseph"
+            CACHE STRING "Path to swisseph header files" )
+    else()
+        set( LIBSWE_INCLUDE_PATH
+            "/usr/local/include/swisseph"
+            CACHE STRING "Path to swisseph header files" )
+    endif()
 endif()
 
 # Find sqlite3
@@ -75,8 +77,7 @@ set( HEADERS
     swhxx.h
     swhxx.hpp )
 
-include_directories( BEFORE .
-    ${LIBSWE_INCLUDE_PATH} )
+include_directories( BEFORE . ${LIBSWE_INCLUDE_PATH} )
 
 if ( MSVC )
     add_definitions( -D_CRT_SECURE_NO_WARNINGS )

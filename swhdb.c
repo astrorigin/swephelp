@@ -55,33 +55,33 @@ const char* _swh_db_creates_sql[] = {
 "CREATE TABLE Users"
 "("
 " _idx integer primary key,"
-" name varchar not null unique check (name != ''),"
-" pswd varchar default '',"
-" mail varchar default '',"
-" info varchar default ''"
+" name varchar not null unique check (length(name) between 1 and 128),"
+" pswd varchar not null default '',"
+" mail varchar not null default '',"
+" info varchar not null default ''"
 ");",
 "INSERT INTO Users (_idx, name) values (1, 'root');",
 "CREATE TABLE Data"
 "("
 " _idx integer primary key,"
 " _uidx integer not null default 1,"
-" title varchar not null check (title != ''),"
+" title varchar not null check (length(title) between 1 and 128),"
 " jd float not null,"
-" lat float not null default 0 check (lat between -90 and 90),"
-" lon float not null default 0 check (lon between -180 and 180),"
-" alt integer not null default 0 check (alt between -10000 and 20000),"
-" datetime varchar default '',"
-" timezone varchar default '',"
-" isdst integer default -1,"
-" location varchar default '',"
-" country varchar default '',"
+" latitude float not null default 0 check (latitude between -90 and 90),"
+" longitude float not null default 0 check (longitude between -180 and 180),"
+" altitude integer not null default 0 check (altitude between -10000 and 20000),"
+" datetime varchar not null default '',"
+" timezone varchar not null default '',"
+" isdst integer not null default -1 check (isdst between -1 and 1),"
+" location varchar not null default '',"
+" country varchar not null default '',"
 " foreign key (_uidx) references Users(_idx)"
 ");",
 "CREATE TABLE Tags"
 "("
 " _idx integer primary key,"
 " _uidx integer not null default 1,"
-" name varchar not null unique check (name != ''),"
+" name varchar not null unique check (length(name) between 1 and 128),"
 " comment varchar default '',"
 " foreign key (_uidx) references Users(_idx)"
 ");",
@@ -132,23 +132,24 @@ int swh_db_exec(
             strcpy(err, "no database connection");
         else
             fprintf(stderr, "%s\n", "no database connection");
-        return 1;
+        return -1; // not connected
     }
 #ifdef SWH_DB_TRACE
     printf("--> %s\n", sql);
 #endif
     x = sqlite3_exec(_swh_db_cnx, sql, callback, arg, err ? &e : NULL);
     if (x != SQLITE_OK) {
-        if (e) {
-            if (err)
-                snprintf(err, 512, "%s", e);
-            sqlite3_free(e);
+        if (err) {
+            memset(err, 0, 512);
+            if (e) {
+                strncpy(err, e, 511);
+                sqlite3_free(e);
+            }
+            else
+                snprintf(err, 511, "sqlite error code: (%d)", x);
         }
-        else if (err)
-            sprintf(err, "error code: (%d)", x);
-        return 1;
     }
-    return 0;
+    return x; // return sqlite code (>= 0)
 }
 
 int _swh_db_version_cb(void* arg, int argc, char** argv, char** cols)
@@ -158,59 +159,83 @@ int _swh_db_version_cb(void* arg, int argc, char** argv, char** cols)
     return 0;
 }
 
+int swh_db_check_version(char err[512])
+{
+    int i = -1;
+    if (swh_db_exec("select version from Meta order by version limit 1;",
+                    &_swh_db_version_cb, &i, err))
+        return 1; // sql error?!
+    if (!i)
+        return 0;
+    if (i < 0) { // got no rows?!
+        strcpy(err, "broken database");
+        return 2;
+    }
+    memset(err, 0, 512);
+    snprintf(err, 511, "database required version: %s", SWH_DB_VERSION_STR);
+    return -1;
+}
+
 int swh_db_connect(const char* path,
     int check,
     char err[512])
 {
-    int exists, i = 0;
+    int i;
     char str[512];
     char* fpath = NULL;
 
+    // close previous connection
     if (_swh_db_cnx && swh_db_close()) {
         strcpy(err, "error closing database connection");
         return 1;
     }
+    // get db path
     if (!(fpath = getenv("SWH_DATA_PATH")) || !*fpath) {
         if (!path || !*path) {
             strcpy(err, "missing path to database");
-            return 1;
+            return 2;
         }
         fpath = (char*) path;
     }
-    exists = access(fpath, F_OK) ? 0 : 1;
-    if (exists && access(fpath, R_OK|W_OK)) {
-        snprintf(err, 512, "bad permissions on database (%s)", fpath);
-        return 1;
+    // check db file exists, if yes, check it is readable and writable
+    i = access(fpath, F_OK) ? 0 : 1;
+    if (i && access(fpath, R_OK|W_OK)) {
+        memset(err, 0, 512);
+        snprintf(err, 511, "bad permissions on database (%s)", fpath);
+        return 3;
     }
-    if (snprintf(str, 512, "file:%s?mode=rwc", fpath) < 0) {
-        snprintf(err, 512, "io error");
-        return 1;
+    // prepare connection string
+    memset(str, 0, 512);
+    if (snprintf(str, 511, "file:%s?mode=rwc", fpath) < 0) {
+        strcpy(err, "io error");
+        return 4;
     }
+    // initiate connection
     if (sqlite3_open(str, &_swh_db_cnx) != SQLITE_OK) {
-        snprintf(err, 512, "unable to connect to database (%s)", fpath);
-        return 1;
+        memset(err, 0, 512);
+        snprintf(err, 511, "unable to connect to database (%s)", fpath);
+        return 5;
     }
+    // set busy timeout
     if (sqlite3_busy_timeout(_swh_db_cnx, 1000) != SQLITE_OK) {
-        snprintf(err, 512, "unable to set busy timeout on (%s)", fpath);
-        return 1;
+        memset(err, 0, 512);
+        snprintf(err, 511, "unable to set busy timeout on (%s)", fpath);
+        return 6;
     }
-    if (!exists) {
+    // install tables if new db
+    if (!i) {
         char* p = (char*) _swh_db_creates_sql[0];
         do {
             if (swh_db_exec(p, NULL, NULL, err))
-                return 1;
+                return 7;
         } while ((p = (char*) _swh_db_creates_sql[++i]));
-        return 0;
+        return 0; // ok, no need to check version
     }
     if (!check)
         return 0;
-    if (swh_db_exec("select version from Meta limit 1;",
-                    &_swh_db_version_cb, &i, err))
-        return 1;
-    if (i) {
-        snprintf(err, 512, "database required version: %s", SWH_DB_VERSION_STR);
-        return 2;
-    }
+    // check db version
+    if ((i = swh_db_check_version(err)))
+        return i < 0 ? -1 : 8;
     return 0;
 }
 

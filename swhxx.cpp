@@ -21,6 +21,7 @@
 #include <cassert>
 #include <cstdarg>
 #include <cstdio>
+#include <cstring>
 
 #include "swhxx.h"
 #include "swhxx.hpp"
@@ -51,8 +52,13 @@ void swh::ErrorBase::error(const char* s)
 {
     if (!s)
         return clearError();
-    if (!m_error)
-        m_error = new string(s);
+    if (!m_error) {
+        m_error = new (std::nothrow) string(s);
+        if (!m_error) {
+            fputs("nomem", stderr);
+            exit(1);
+        }
+    }
     else
         *m_error = s;
 }
@@ -61,10 +67,11 @@ void swh::ErrorBase::errorFormat(const char* fmt, ...)
 {
     va_list ap;
     char err[512];
+    memset(err, 0, 512);
 
     assert(fmt);
     va_start(ap, fmt);
-    vsnprintf(err, 512, fmt, ap);
+    vsnprintf(err, 511, fmt, ap);
     va_end(ap);
     error(err);
 }
@@ -72,6 +79,11 @@ void swh::ErrorBase::errorFormat(const char* fmt, ...)
 bool swh::ErrorBase::hasError() const
 {
     return m_error ? true : false;
+}
+
+int swhxx_has_error(void* o)
+{
+    return ((swh::ErrorBase*)o)->hasError() == true ? 1 : 0;
 }
 
 void swh::ErrorBase::clearError()

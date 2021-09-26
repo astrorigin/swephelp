@@ -27,7 +27,7 @@
 #define INCH    ((1.0/(24*60*60))*5)
 #define PRECISE INCH
 
-int swh_approx_retrotime(int pl)
+double swh_approx_retrotime(int pl)
 {
     switch (pl) {
     case SE_SUN: return 0;

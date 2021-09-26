@@ -28,9 +28,9 @@ void swhxx_db_user_new(void** o);
 
 void swhxx_db_user_dealloc(void** o);
 
-int swhxx_db_user_get_idx(void* o);
+unsigned long swhxx_db_user_get_idx(void* o);
 
-int swhxx_db_user_set_idx(void* o, int x);
+int swhxx_db_user_set_idx(void* o, unsigned long x);
 
 const char* swhxx_db_user_get_name(void* o);
 
@@ -58,7 +58,7 @@ int _swhxx_db_user_cb(void* arg, int argc, char** argv, char** cols);
 
 int swhxx_db_user_root(void** o, char err[512]);
 
-int swhxx_db_user_select_idx(int uidx, void** o, char err[512]);
+int swhxx_db_user_select_idx(unsigned long uidx, void** o, char err[512]);
 
 int swhxx_db_user_select(const char* name, void** o, char err[512]);
 
@@ -66,13 +66,13 @@ void swhxx_db_data_new(void** o);
 
 void swhxx_db_data_dealloc(void** o);
 
-int swhxx_db_data_get_idx(void* o);
+unsigned long swhxx_db_data_get_idx(void* o);
 
-int swhxx_db_data_set_idx(void* o, int x);
+int swhxx_db_data_set_idx(void* o, unsigned long x);
 
-int swhxx_db_data_get_uidx(void* o);
+unsigned long swhxx_db_data_get_useridx(void* o);
 
-int swhxx_db_data_set_uidx(void* o, int x);
+int swhxx_db_data_set_useridx(void* o, unsigned long x);
 
 const char* swhxx_db_data_get_title(void* o);
 
@@ -82,17 +82,17 @@ double swhxx_db_data_get_jd(void* o);
 
 int swhxx_db_data_set_jd(void* o, double jd);
 
-double swhxx_db_data_get_lat(void* o);
+double swhxx_db_data_get_latitude(void* o);
 
-int swhxx_db_data_set_lat(void* o, double lat);
+int swhxx_db_data_set_latitude(void* o, double lat);
 
-double swhxx_db_data_get_lon(void* o);
+double swhxx_db_data_get_longitude(void* o);
 
-int swhxx_db_data_set_lon(void* o, double lon);
+int swhxx_db_data_set_longitude(void* o, double lon);
 
-int swhxx_db_data_get_alt(void* o);
+long swhxx_db_data_get_altitude(void* o);
 
-int swhxx_db_data_set_alt(void* o, int alt);
+int swhxx_db_data_set_altitude(void* o, long alt);
 
 const char* swhxx_db_data_get_datetime(void* o);
 
@@ -102,9 +102,9 @@ const char* swhxx_db_data_get_timezone(void* o);
 
 int swhxx_db_data_set_timezone(void* o, const char* tz);
 
-int swhxx_db_data_get_isdst(void* o);
+long swhxx_db_data_get_isdst(void* o);
 
-int swhxx_db_data_set_isdst(void* o, int i);
+int swhxx_db_data_set_isdst(void* o, long i);
 
 const char* swhxx_db_data_get_location(void* o);
 

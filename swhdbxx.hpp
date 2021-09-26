@@ -35,15 +35,10 @@ class User
 {
 public:
 
-    User(
-        int idx=0,
-        const char* name="?",
-        const char* pswd="",
-        const char* mail="",
-        const char* info="");
+    User();
 
-    int idx() const;
-    int idx(int x);
+    unsigned long idx() const;
+    int idx(unsigned long x);
 
     const char* name() const;
     int name(const char* s);
@@ -61,15 +56,23 @@ public:
 
     int save();
 
+    static bool infoIsValid(const char* s);
+
+    static bool mailIsValid(const char* s);
+
+    static bool nameIsValid(const char* s);
+
+    static bool pswdIsValid(const char* s);
+
     static int root(User** p, char err[512]);
 
-    static int select(int uidx, User** p, char err[512]);
+    static int select(unsigned long uidx, User** p, char err[512]);
 
     static int select(const char* name, User** p, char err[512]);
 
 protected:
 
-    int     m_idx;
+    unsigned long m_idx;
     string  m_name;
     string  m_pswd;
     string  m_mail;
@@ -82,25 +85,13 @@ class Data
 {
 public:
 
-    Data(
-        int idx=0,
-        int uidx=1,
-        const char* title="?",
-        double jd=0,
-        double lat=0,
-        double lon=0,
-        int alt=0,
-        const char* datetime="",
-        const char* timezone="",
-        int isdst=-1,
-        const char* location="",
-        const char* country="");
+    Data();
 
-    int idx() const;
-    int idx(int x);
+    unsigned long idx() const;
+    int idx(unsigned long x);
 
-    int uidx() const;
-    int uidx(int x);
+    unsigned long useridx() const;
+    int useridx(unsigned long x);
 
     const char* title() const;
     int title(const char* s);
@@ -108,14 +99,14 @@ public:
     double jd() const;
     int jd(double t);
 
-    double lat() const;
-    int lat(double d);
+    double latitude() const;
+    int latitude(double d);
 
-    double lon() const;
-    int lon(double d);
+    double longitude() const;
+    int longitude(double d);
 
-    int alt() const;
-    int alt(int i);
+    long altitude() const;
+    int altitude(long i);
 
     const char* datetime() const;
     int datetime(const char* s);
@@ -123,8 +114,8 @@ public:
     const char* timezone() const;
     int timezone(const char* s);
 
-    int isdst() const;
-    int isdst(int i);
+    long isdst() const;
+    int isdst(long i);
 
     const char* location() const;
     int location(const char* s);
@@ -136,16 +127,16 @@ public:
 
 protected:
 
-    int     m_idx;
-    int     m_uidx;
+    unsigned long m_idx;
+    unsigned long m_useridx;
     string  m_title;
     double  m_jd;
-    double  m_lat;
-    double  m_lon;
-    int     m_alt;
+    double  m_latitude;
+    double  m_longitude;
+    long    m_altitude;
     string  m_datetime;
     string  m_timezone;
-    int     m_isdst;
+    long    m_isdst;
     string  m_location;
     string  m_country;
 };
