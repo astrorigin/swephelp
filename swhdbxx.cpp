@@ -247,7 +247,7 @@ int swh::db::User::save()
             return 2; // sql error?
         }
         if (!m_idx) {
-            errorFormat("cant retrieve idx of user (%s)", m_name);
+            errorFormat("cant retrieve idx of user (%s)", m_name.c_str());
             return 2; // wut?
         }
     }
